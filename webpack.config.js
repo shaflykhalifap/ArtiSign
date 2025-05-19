@@ -10,7 +10,12 @@ module.exports = {
       //* ------- TypeScript Loader ------- */
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: {
+          loader: "ts-loader",
+          options: {
+            configFile: "tsconfig.json",
+          },
+        },
         exclude: /node_modules/,
       },
       //* ------- Babel Loader ------- */
@@ -26,10 +31,10 @@ module.exports = {
         },
       },
 
-      //* ------- File Loader ------- */
+      //* ------- File CSS Loader ------- */
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
       },
 
       // * ------- Image Loader ------- */
@@ -44,6 +49,10 @@ module.exports = {
         type: "asset/resource",
       },
     ],
+  },
+
+  resolve: {
+    extensions: [".tsx", ".ts", ".js", ".jsx"],
   },
 
   //* ------- Plugins ------- */

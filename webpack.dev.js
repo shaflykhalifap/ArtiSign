@@ -6,6 +6,8 @@ const { merge } = require("webpack-merge");
 module.exports = merge(config, {
   mode: "development",
 
+  devtool: "inline-source-map",
+
   devServer: {
     static: {
       directory: path.join(__dirname, "src"),

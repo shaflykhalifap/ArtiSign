@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Translate from "./pages/Translate";
 import Chatbot from "./pages/Chatbot";
 import Article from "./pages/Article";
-import About from "./pages/About";
+import AboutPage from "./pages/AboutPage";
 import Sidebar from "./components/Sidebar";
 
 const App = () => {
@@ -19,7 +19,7 @@ const App = () => {
           <Route path="/translate" element={<Translate />} />
           <Route path="/chatbot" element={<Chatbot />} />
           <Route path="/article" element={<Article />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </div>
     </div>

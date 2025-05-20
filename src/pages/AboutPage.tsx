@@ -3,6 +3,7 @@ import AboutSidebar from "../components/layout/AboutSidebar";
 import Container from "../components/common/Container";
 import Footer from "../components/layout/Footer";
 import AboutActive from "../components/about/AboutActive";
+import CommunityActive from "../components/about/CommunityActive";
 
 type AboutTab = "about" | "community" | "terms" | "privacy";
 
@@ -18,15 +19,7 @@ const AboutPage = () => {
           <Container>
             {activeTab === "about" && <AboutActive />}
 
-            {activeTab === "community" && (
-              <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Komunitas & Support</h1>
-                <p className="text-gray-300">
-                  Bergabunglah dengan komunitas kami untuk berkolaborasi dan
-                  mendapatkan bantuan dari pengguna lain.
-                </p>
-              </div>
-            )}
+            {activeTab === "community" && <CommunityActive />}
 
             {activeTab === "terms" && (
               <div className="space-y-6">

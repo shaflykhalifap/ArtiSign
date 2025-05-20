@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Translate from "./pages/Translate";
-import Chatbot from "./pages/Chatbot";
-import Article from "./pages/Article";
+import Home from "./pages/HomePage";
+import Translate from "./pages/TranslatePage";
+import Chatbot from "./pages/ChatbotPage";
+import Article from "./pages/ArticlePage";
 import AboutPage from "./pages/AboutPage";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/layout/Sidebar";
 
 const App = () => {
   return (

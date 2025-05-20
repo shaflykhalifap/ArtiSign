@@ -1,5 +1,5 @@
-import Container from "./Container";
-import FeatureCard from "./FeatureCard";
+import Container from "../common/Container";
+import FeatureCard from "../common/FeatureCard";
 
 const HomeFeature = () => {
   const features = [

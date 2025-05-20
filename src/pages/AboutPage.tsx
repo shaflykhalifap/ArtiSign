@@ -1,8 +1,8 @@
 import { useState } from "react";
-import AboutSidebar from "../components/AboutSidebar";
-import Container from "../components/Container";
-import Footer from "../components/Footer";
-import AboutActive from "../components/AboutActive";
+import AboutSidebar from "../components/layout/AboutSidebar";
+import Container from "../components/common/Container";
+import Footer from "../components/layout/Footer";
+import AboutActive from "../components/about/AboutActive";
 
 type AboutTab = "about" | "community" | "terms" | "privacy";
 

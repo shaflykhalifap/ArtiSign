@@ -1,4 +1,4 @@
-import Container from "./Container";
+import Container from "../common/Container";
 import { ArrowRight } from "lucide-react";
 
 const HeroSection: React.FC = () => {

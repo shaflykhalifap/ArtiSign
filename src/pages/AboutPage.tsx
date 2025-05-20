@@ -1,14 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import AboutSidebar from "../components/layout/AboutSidebar";
 import Container from "../components/common/Container";
 import Footer from "../components/layout/Footer";
 import AboutActive from "../components/about/AboutActive";
 import CommunityActive from "../components/about/CommunityActive";
+import TermsActive from "../components/about/TermsActive";
+import PrivacyActive from "../components/about/PrivacyActive";
 
 type AboutTab = "about" | "community" | "terms" | "privacy";
 
 const AboutPage = () => {
   const [activeTab, setActiveTab] = useState<AboutTab>("about");
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/about/community") {
+      setActiveTab("community");
+    } else if (location.pathname === "/about/terms") {
+      setActiveTab("terms");
+    } else if (location.pathname === "/about/privacy") {
+      setActiveTab("privacy");
+    } else {
+      setActiveTab("about");
+    }
+  }, [location.pathname]);
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "about":
+        return <AboutActive />;
+      case "community":
+        return <CommunityActive />;
+      case "terms":
+        return <TermsActive />;
+      case "privacy":
+        return <PrivacyActive />;
+      default:
+        return <AboutActive />;
+    }
+  };
 
   return (
     <>
@@ -16,29 +47,7 @@ const AboutPage = () => {
         <AboutSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <div className="flex-1 p-8 ml-64">
-          <Container>
-            {activeTab === "about" && <AboutActive />}
-
-            {activeTab === "community" && <CommunityActive />}
-
-            {activeTab === "terms" && (
-              <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Ketentuan dan Etika</h1>
-                <p className="text-gray-300">
-                  Panduan penggunaan platform ArtiSign yang bertanggung jawab.
-                </p>
-              </div>
-            )}
-
-            {activeTab === "privacy" && (
-              <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Kebijakan Privasi</h1>
-                <p className="text-gray-300">
-                  Informasi tentang bagaimana kami mengelola data pengguna.
-                </p>
-              </div>
-            )}
-          </Container>
+          <Container>{renderContent()}</Container>
         </div>
       </div>
       <Footer />

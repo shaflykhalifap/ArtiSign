@@ -1,65 +1,54 @@
 import { Link2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const TermsActive = () => {
   return (
     <div className="space-y-6">
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
-          cara terbaik untuk berkomunikasi dengan semua orang
+          ketentuan umum
           <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
-          ArtiSign membantu kamu menerjemahkan teks bahasa Indonesia ke bahasa
-          Isyarat Indonesia (BISINDO) dalam hitungan detik. cukup tempelkan
-          kalimat atau paragraf, lalu nikmati animasi isyarat tangan dan panduan
-          langkah demi langkah yang mudah diikuti.
-          <br />
-          <br />
-          tidak ada iklan, pelacak, paywall, atau gangguan lainnya. hanya
-          aplikasi web ringan yang dapat digunakan di mana saja dan kapan saja.
+          Ketentuan ini hanya berlaku jika kamu menggunakan layanan resmi dari
+          ArtiSign. Untuk penggunaan lain di luar domain resmi, silakan hubungi
+          penyedia layanan masing-masing.
         </p>
       </section>
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
-          motivasi
+          penyimpanan
           <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
-          ArtiSign dibangun untuk memberdayakan komunikasi yang inklusif di
-          Indonesia. kami percaya bahwa setiap orang—tuli, dengar, muda,
-          tua—berhak mengakses informasi tanpa hambatan bahasa. dengan ArtiSign,
-          belajar dan berbagi BISINDO menjadi semudah mengetik teks.
+          ArtiSign tidak menyimpan konten teks, video, atau hasil terjemahan
+          secara permanen. Semua proses dilakukan secara real-time di memori
+          (RAM) dan langsung dihapus setelah sesi selesai.
+          <br />
+          <br />
+          Kami tidak memiliki <span>log unduhan</span> dan
+          <span>tidak dapat mengidentifikasi pengguna</span>.
+          <br />
+          <br />
+          <Link to="/about/privacy" className="underline cursor-pointer">
+            Kamu bisa membaca lebih lanjut tentang privasi kami di kebijakan
+            privasi ArtiSign.
+          </Link>
         </p>
       </section>
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
-          cara kerja
+          tanggung jawab pengguna
           <Link2 size={16} className="text-white/60" />
         </h2>
-        <ol className="list-decimal pl-8 text-gray-300 space-y-4 relative">
-          <li className="pl-2">
-            <div className="font-medium text-white">tempel & terjemahkan</div>
-            <p className="mt-1">
-              tempelkan teks Bahasa Indonesia ke kolom yang tersedia.
-            </p>
-          </li>
-          <li className="pl-2">
-            <div className="font-medium text-white">hasilkan animasi</div>
-            <p className="mt-1">
-              server kami akan mengubah setiap kata menjadi animasi gerakan
-              BISINDO.
-            </p>
-          </li>
-          <li className="pl-2">
-            <div className="font-medium text-white">
-              panduan langkah demi langkah
-            </div>
-            <p className="mt-1">
-              selain video kamera, tersedia juga ilustrasi dan deskripsi gerakan
-              untuk belajar mandiri.
-            </p>
-          </li>
-        </ol>
+        <p className="text-gray-300">
+          kamu (pengguna akhir) bertanggung jawab penuh atas apa yang kamu
+          lakukan dengan alat kami, termasuk bagaimana kamu menggunakan dan
+          menyebarkan konten hasil terjemahan.
+          <br />
+          penggunaan yang adil (fair use) dan atribusi yang benar akan memberi
+          manfaat untuk semua pihak.
+        </p>
       </section>
     </div>
   );

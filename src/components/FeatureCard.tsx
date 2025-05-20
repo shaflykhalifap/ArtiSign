@@ -12,9 +12,9 @@ const FeatureCard = ({ title, description, image, alt }: FeatureCardProps) => {
     <div className="bg-[#111111] border border-gray-700 rounded-xl p-6 hover:shadow-lg transition-shadow">
       <div className="relative w-full h-48 mb-6">
         <Image
-          src="/images/fitur1.png"
-          alt="Ilustrasi Fitur"
-          className="w-full h-48 rounded"
+          src={image}
+          alt={alt}
+          className="w-full h-48 rounded object-cover"
         />
       </div>
       <h3 className="text-lg font-bold font-mono mb-2">{title}</h3>

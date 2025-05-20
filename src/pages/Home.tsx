@@ -2,6 +2,7 @@ import Sidebar from "../components/Sidebar";
 import HeroSection from "../components/HeroSection";
 import HighlightSection from "../components/HighlightSection";
 import Footer from "../components/Footer";
+import HomeFeature from "../components/HomeFeature";
 
 const Home = () => {
   return (
@@ -14,6 +15,7 @@ const Home = () => {
         <div className="flex-1">
           <HeroSection />
           <HighlightSection />
+          <HomeFeature />
         </div>
 
         <Footer />

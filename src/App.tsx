@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/HomePage";
 import Translate from "./pages/TranslatePage";
 import Chatbot from "./pages/ChatbotPage";
-import Article from "./pages/ArticlePage";
+import ArticlePage from "./pages/ArticlePage";
 import AboutPage from "./pages/AboutPage";
 import Sidebar from "./components/layout/Sidebar";
 import AboutActive from "./components/about/AboutActive";
@@ -22,7 +22,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/translate" element={<Translate />} />
           <Route path="/chatbot" element={<Chatbot />} />
-          <Route path="/article" element={<Article />} />
+          <Route path="/article" element={<ArticlePage />} />
           <Route path="/about" element={<AboutPage />}>
             <Route index element={<AboutActive />} />
             <Route path="terms" element={<TermsActive />} />

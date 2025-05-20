@@ -12,11 +12,9 @@ const AboutSidebar = ({
 }) => {
   const navigate = useNavigate();
 
-  // Handle both state change and navigation
   const handleTabChange = (tab: AboutTab) => {
     setActiveTab(tab);
 
-    // Navigate to appropriate route based on tab
     if (tab === "about") {
       navigate("/about");
     } else {
@@ -25,7 +23,7 @@ const AboutSidebar = ({
   };
 
   return (
-    <aside className="w-70 bg-[#1a1a1a] p-6 flex flex-col justify-between border-gray-800 fixed top-0 left-[180px] bottom-0">
+    <aside className="w-70 bg-[#1a1a1a] p-12 flex flex-col justify-between border-gray-800 fixed top-0 left-[180px] bottom-0">
       <div className="space-y-6">
         <nav className="space-y-4">
           <button

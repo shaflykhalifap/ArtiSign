@@ -46,7 +46,7 @@ const AboutPage = () => {
       <div className="flex flex-1 bg-[#1a1a1a] text-white">
         <AboutSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <div className="flex-1 p-8 ml-64">
+        <div className="flex-1 p-12 ml-56">
           <Container>{renderContent()}</Container>
         </div>
       </div>

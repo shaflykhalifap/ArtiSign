@@ -1,10 +1,10 @@
-import Beranda from "./pages/Beranda";
+import Home from "./pages/Home";
 
 const App = () => {
   return (
     <div>
       <div>
-        <Beranda></Beranda>
+        <Home></Home>
       </div>
     </div>
   );

@@ -7,14 +7,14 @@ const ButtonSidebar = () => {
     {
       name: "terjemahan",
       icon: <Languages size={28} />,
-      path: "/terjemahan",
+      path: "/translate",
     },
     { name: "chatbot", icon: <Bot size={28} />, path: "/chatbot" },
   ];
 
   const bottomMenuItems = [
-    { name: "artikel", icon: <BookOpen size={28} />, path: "/artikel" },
-    { name: "tentang", icon: <Info size={28} />, path: "/tentang" },
+    { name: "artikel", icon: <BookOpen size={28} />, path: "/article" },
+    { name: "tentang", icon: <Info size={28} />, path: "/about" },
   ];
 
   const renderNavLink = (

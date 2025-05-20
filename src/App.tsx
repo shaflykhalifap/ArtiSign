@@ -1,10 +1,26 @@
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import Translate from "./pages/Translate";
+import Chatbot from "./pages/Chatbot";
+import Article from "./pages/Article";
+import About from "./pages/About";
+import Sidebar from "./components/Sidebar";
 
 const App = () => {
   return (
-    <div>
-      <div>
-        <Home></Home>
+    <div className="flex">
+      <div className="fixed top-0 left-0 h-full z-10">
+        <Sidebar />
+      </div>
+
+      <div className="flex-1 ml-[180px] flex flex-col min-h-screen">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/translate" element={<Translate />} />
+          <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/article" element={<Article />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
       </div>
     </div>
   );

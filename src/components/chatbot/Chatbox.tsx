@@ -21,7 +21,7 @@ const UserBubble: React.FC<MessageProps> = ({ text }) => {
 
 const BotBubble: React.FC<MessageProps> = ({ text }) => {
   return (
-    <div className="self-start bg-[#0B3276] text-white rounded-lg rounded-bl-none px-4 py-2 max-w-md">
+    <div className="self-start bg-blue-600 text-white rounded-lg rounded-bl-none px-4 py-2 max-w-md">
       <p>{text}</p>
     </div>
   );

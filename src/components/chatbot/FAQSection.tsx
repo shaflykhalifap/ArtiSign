@@ -1,35 +1,48 @@
-import { ThumbsUp, ThumbsDown } from "lucide-react";
-
-interface FaqItem {
-  q: string;
-  a: string;
-}
+import { useState } from "react";
+import faqs from "../../data/FAQChatbotData";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const FAQSection: React.FC = () => {
-  const faqs: FaqItem[] = [
-    { q: "Apa itu AI Chatbot?", a: "AI Chatbot adalah..." },
-    { q: "Manfaat AI Chatbot?", a: "Manfaatnya antara lain..." },
-    { q: "Apakah privasi terjaga?", a: "Ya, data Anda aman..." },
-  ];
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
 
   return (
     <div className="bg-[#2c2c2c] text-white p-4 rounded-xl w-full max-w-md">
       <h2 className="text-xl font-bold mb-4">AI Chatbot</h2>
+
       {faqs.map((item, idx) => (
-        <details key={idx} className="mb-2">
-          <summary className="cursor-pointer py-1">{item.q}</summary>
-          <p className="ml-4 text-sm mt-1">{item.a}</p>
-        </details>
+        <div
+          key={idx}
+          className="mb-2 border-b border-gray-700 last:border-b-0"
+        >
+          <button
+            onClick={() => toggleFAQ(idx)}
+            className="w-full text-left flex justify-between items-center py-3 cursor-pointer hover:text-blue-400 transition-colors"
+          >
+            <span className="font-medium">{item.question}</span>
+            {openIndex === idx ? (
+              <ChevronUp size={18} />
+            ) : (
+              <ChevronDown size={18} />
+            )}
+          </button>
+
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              openIndex === idx
+                ? "max-h-40 opacity-100 mb-3"
+                : "max-h-0 opacity-0"
+            }`}
+          >
+            <p className="text-sm text-gray-300 pl-2 border-l-2 border-blue-500">
+              {item.answer}
+            </p>
+          </div>
+        </div>
       ))}
-      <div className="mt-4 text-sm flex items-center">
-        Tanggapan Anda soal Chatbot ini?
-        <button className="ml-2">
-          <ThumbsUp size={16} />
-        </button>
-        <button className="ml-1">
-          <ThumbsDown size={16} />
-        </button>
-      </div>
     </div>
   );
 };

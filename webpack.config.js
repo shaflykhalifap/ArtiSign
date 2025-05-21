@@ -18,6 +18,7 @@ module.exports = {
         },
         exclude: /node_modules/,
       },
+
       //* ------- Babel Loader ------- */
       {
         test: /\.js$/,

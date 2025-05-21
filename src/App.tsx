@@ -1,4 +1,7 @@
+// --- Import React and React Router DOM ---
 import { Routes, Route } from "react-router-dom";
+
+// --- Import Components ---
 import Home from "./pages/HomePage";
 import Translate from "./pages/TranslatePage";
 import Chatbot from "./pages/ChatbotPage";

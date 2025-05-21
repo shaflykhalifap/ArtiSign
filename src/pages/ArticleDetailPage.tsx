@@ -4,6 +4,7 @@ import Container from "../components/common/Container";
 import Footer from "../components/layout/Footer";
 import { ArrowLeft } from "lucide-react";
 import articlesData, { Article } from "../data/ArticleData";
+import ShareButton from "../components/article/ShareButton";
 
 const ArticleDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -52,16 +53,16 @@ const ArticleDetailPage = () => {
         <Container>
           <div className="text-center py-16">
             <h2 className="text-2xl font-bold text-white mb-4">
-              Artikel tidak ditemukan
+              artikel tidak ditemukan
             </h2>
             <p className="text-gray-400 mb-6">
-              Maaf, artikel yang kamu cari tidak dapat ditemukan.
+              maaf, artikel yang kamu cari tidak dapat ditemukan.
             </p>
             <button
               onClick={handleBackClick}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
             >
-              Kembali ke daftar artikel
+              kembali ke daftar artikel
             </button>
           </div>
         </Container>
@@ -71,7 +72,7 @@ const ArticleDetailPage = () => {
   }
 
   return (
-    <div className="p-12">
+    <div className="p-12 bg-[#1a1a1a]">
       <Container>
         <button
           onClick={handleBackClick}
@@ -105,6 +106,10 @@ const ArticleDetailPage = () => {
 
         <div className="prose prose-lg prose-invert max-w-none">
           {article.content}
+        </div>
+
+        <div className="mt-10 pt-6 border-t border-gray-700 flex justify-end">
+          <ShareButton title={article.title} />
         </div>
       </Container>
       <Footer />

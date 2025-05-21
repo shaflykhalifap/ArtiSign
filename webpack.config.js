@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: "./src/main.tsx",
@@ -59,7 +60,19 @@ module.exports = {
   //* ------- Plugins ------- */
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./index.html",
+      template: path.resolve(__dirname, "index.html"),
+      publicPath: "/",
+      minify: {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+      },
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "public/assets", to: "assets" },
+        { from: "src/assets", to: "assets" },
+      ],
     }),
   ],
 };

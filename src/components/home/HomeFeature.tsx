@@ -7,21 +7,21 @@ const HomeFeature = () => {
       title: "penerjemah real-time",
       description:
         "terjemahkan teks bahasa indonesia ke bahasa isyarat dengan cepat, akurat, dan memudahkan komunikasi tanpa hambatan",
-      image: "../assets/img/card-1-translate.png",
+      image: "/assets/img/card-1-translate.png",
       alt: "ilustrasi fitur penerjemah teks ke bahasa isyarat",
     },
     {
       title: "ai chatbot",
       description:
         "temukan jawaban atau pelajari lebih dalam tentang bahasa isyarat dengan ngobrol langsung bersama ai",
-      image: "../assets/img/card-2-chatbot.png",
+      image: "/assets/img/card-2-chatbot.png",
       alt: "ilustrasi chatbot bahasa isyarat",
     },
     {
       title: "artikel edukatif",
       description:
         "pelajari dasar-dasar bahasa isyarat melalui artikel yang informatif",
-      image: "../assets/img/card-3-article.png",
+      image: "/assets/img/card-3-article.png",
       alt: "ilustrasi artikel belajar bahasa isyarat",
     },
   ];

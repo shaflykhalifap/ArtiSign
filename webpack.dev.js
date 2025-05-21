@@ -24,6 +24,7 @@ module.exports = merge(config, {
     filename: "[name].js",
     assetModuleFilename: "img/[name][ext]",
     clean: true,
+    publicPath: "/",
   },
 
   plugins: [

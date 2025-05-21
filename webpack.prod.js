@@ -12,6 +12,7 @@ module.exports = merge(config, {
     filename: "[name].[contenthash].js",
     assetModuleFilename: "img/[hash][ext]",
     clean: true,
+    publicPath: "/",
   },
 
   plugins: [
@@ -22,6 +23,9 @@ module.exports = merge(config, {
 
   //* ------- CSS Minimize Optimization ------- */
   optimization: {
-    minimizer: [new CssMinimizerPlugin()],
+    minimizer: [new CssMinimizerPlugin(), "..."],
+    splitChunks: {
+      chunks: "all",
+    },
   },
 });

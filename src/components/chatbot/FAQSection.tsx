@@ -1,13 +1,9 @@
-import { useState } from "react";
-import faqs from "../../data/FAQChatbotData";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import faqs from "../../data/FAQChatbotData";
+import useAccordion from "../../hooks/useAccordion";
 
 const FAQSection: React.FC = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  const { openIndex, toggleItem } = useAccordion();
 
   return (
     <div className="bg-[#2c2c2c] text-white p-4 rounded-xl w-full max-w-md">
@@ -19,7 +15,7 @@ const FAQSection: React.FC = () => {
           className="mb-2 border-b border-gray-700 last:border-b-0"
         >
           <button
-            onClick={() => toggleFAQ(idx)}
+            onClick={() => toggleItem(idx)}
             className="w-full text-left flex justify-between items-center py-3 cursor-pointer hover:text-blue-400 transition-colors"
           >
             <span className="font-medium">{item.question}</span>

@@ -6,7 +6,6 @@ import ChatHistory from "../components/chatbot/ChatHistory";
 const ChatbotPage: React.FC = () => {
   const handleSendMessage = (message: string) => {
     console.log("Message sent:", message);
-    // Here you would typically update your chat state
   };
 
   return (
@@ -26,7 +25,6 @@ const ChatbotPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar Content */}
         <div className="flex flex-col gap-4 mt-4 lg:mt-0 lg:ml-4">
           <FAQSection />
           <ChatHistory />

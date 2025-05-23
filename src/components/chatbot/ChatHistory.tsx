@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { PlusCircle, Trash2, X } from "lucide-react";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 interface ChatSession {
   id: string;
@@ -8,18 +8,10 @@ interface ChatSession {
 }
 
 export default function ChatHistory() {
-  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
-
-  useEffect(() => {
-    const storedChats = localStorage.getItem("chatHistory");
-    if (storedChats) {
-      setChatSessions(JSON.parse(storedChats));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("chatHistory", JSON.stringify(chatSessions));
-  }, [chatSessions]);
+  const [chatSessions, setChatSessions] = useLocalStorage<ChatSession[]>(
+    "chatHistory",
+    []
+  );
 
   const createNewChat = () => {
     const newChat: ChatSession = {

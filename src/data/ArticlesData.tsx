@@ -13,7 +13,7 @@ const articlesData: Article[] = [
     image: "/assets/img/artikel-footage-1.jpg",
     title: "pentingnya ajarkan anak-anak bahasa isyarat",
     date: "senin | 19 mei, 2025",
-    version: "1.1",
+    version: "1.0",
     content: (
       <>
         <p className="mb-4">
@@ -103,7 +103,7 @@ const articlesData: Article[] = [
     image: "/assets/img/artikel-footage-2.webp",
     title: "mengenal bahasa isyarat di indonesia: sibi dan bisindo",
     date: "rabu | 21 mei, 2025",
-    version: "1.2",
+    version: "1.1",
     content: (
       <>
         <p className="mb-4">
@@ -253,7 +253,7 @@ const articlesData: Article[] = [
     image: "/assets/img/artikel-footage-4.png",
     title: "mengajarkan empati lewat bahasa isyarat di sekolah",
     date: "senin | 26 mei, 2025",
-    version: "1.4",
+    version: "1.3",
     content: (
       <>
         <p className="mb-4">

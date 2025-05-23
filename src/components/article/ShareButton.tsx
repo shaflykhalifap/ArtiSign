@@ -1,17 +1,5 @@
-import { useState } from "react";
-
-import { FaWhatsapp, FaFacebookF } from "react-icons/fa6";
-import { Share2, Copy, Check, Twitter } from "lucide-react";
-
-type IconType =
-  | { type: "component"; component: React.ComponentType<{ size?: number }> }
-  | { type: "function"; render: () => React.ReactNode };
-
-type ShareOptionType = {
-  name: string;
-  icon: IconType;
-  onClick: () => void;
-};
+import { Share2 } from "lucide-react";
+import { useShare } from "../../hooks/useShare";
 
 interface ShareButtonProps {
   url?: string;
@@ -22,71 +10,16 @@ const ShareButton = ({
   url = window.location.href,
   title = "Check out this article",
 }: ShareButtonProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy link:", err);
-    }
-  };
-
-  const shareOptions: ShareOptionType[] = [
-    {
-      name: "Copy Link",
-      icon: { type: "component", component: copied ? Check : Copy },
-      onClick: handleCopyLink,
-    },
-    {
-      name: "Twitter",
-      icon: { type: "component", component: Twitter },
-      onClick: () => {
-        window.open(
-          `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-            url
-          )}&text=${encodeURIComponent(title)}`,
-          "_blank"
-        );
-      },
-    },
-    {
-      name: "Facebook",
-      icon: { type: "component", component: FaFacebookF },
-      onClick: () => {
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            url
-          )}`,
-          "_blank"
-        );
-      },
-    },
-    {
-      name: "WhatsApp",
-      icon: { type: "component", component: FaWhatsapp },
-      onClick: () => {
-        window.open(
-          `https://api.whatsapp.com/send?text=${encodeURIComponent(
-            title + ": " + url
-          )}`,
-          "_blank"
-        );
-      },
-    },
-  ];
+  const { isOpen, toggleShareMenu, shareOptions } = useShare(url, title);
 
   return (
     <div className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleShareMenu}
         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-600 transition-colors"
       >
         <Share2 size={16} />
-        Share Artikel
+        bagikan artikel
       </button>
 
       {isOpen && (

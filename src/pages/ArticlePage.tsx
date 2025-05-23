@@ -1,7 +1,7 @@
 import Container from "../components/common/Container";
 import ArticleCard from "../components/article/ArticleCard";
 import Footer from "../components/layout/Footer";
-import articlesData from "../data/ArticleData";
+import articlesData from "../data/ArticlesData";
 
 function ArticlePage() {
   return (

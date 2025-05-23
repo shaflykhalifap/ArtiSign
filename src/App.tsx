@@ -2,8 +2,8 @@
 import { Routes, Route } from "react-router-dom";
 
 // --- Import Components ---
-import Home from "./pages/HomePage";
-import Translate from "./pages/TranslatePage";
+import HomePage from "./pages/HomePage";
+import TranslatePage from "./pages/TranslatePage";
 import ChatbotPage from "./pages/ChatbotPage";
 import ArticlePage from "./pages/ArticlePage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
@@ -23,8 +23,8 @@ const App = () => {
 
       <div className="flex-1 ml-[180px] flex flex-col min-h-screen">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/translate" element={<Translate />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/translate" element={<TranslatePage />} />
           <Route path="/chatbot" element={<ChatbotPage />} />
           <Route path="/article" element={<ArticlePage />} />
           <Route path="/article/:id" element={<ArticleDetailPage />} />

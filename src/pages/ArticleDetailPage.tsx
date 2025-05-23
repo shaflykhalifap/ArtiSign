@@ -1,39 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import Container from "../components/common/Container";
 import Footer from "../components/layout/Footer";
 import { ArrowLeft } from "lucide-react";
-import articlesData, { Article } from "../data/ArticleData";
 import ShareButton from "../components/article/ShareButton";
+import { useArticle } from "../hooks/useArticle";
 
 const ArticleDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [article, setArticle] = useState<Article | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-
-  useEffect(() => {
-    try {
-      const timer = setTimeout(() => {
-        const foundArticle = articlesData.find((article) => article.id === id);
-
-        if (foundArticle) {
-          setArticle(foundArticle);
-        } else {
-          setError(true);
-          console.error(`Article with ID "${id}" not found`);
-        }
-        setLoading(false);
-      }, 300);
-
-      return () => clearTimeout(timer);
-    } catch (err) {
-      setError(true);
-      setLoading(false);
-      console.error("Error loading article:", err);
-    }
-  }, [id, navigate]);
+  const { article, loading, error } = useArticle(id);
 
   const handleBackClick = () => {
     navigate("/article");

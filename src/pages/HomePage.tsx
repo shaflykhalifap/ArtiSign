@@ -3,7 +3,7 @@ import HighlightSection from "../components/home/HighlightSection";
 import Footer from "../components/layout/Footer";
 import HomeFeature from "../components/home/HomeFeature";
 
-const Home = () => {
+const HomePage = () => {
   return (
     <>
       <div className="flex-1">
@@ -17,4 +17,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePage;

@@ -5,7 +5,7 @@ interface TranslateOutputProps {
 const TranslateOutput = ({ inputText }: TranslateOutputProps) => {
   return (
     <div className="flex-1 bg-[#1F1F1F] flex flex-col">
-      <div className="p-4 border-b border-gray-700 flex items-center justify-center gap-2">
+      <div className="p-4 border-b bg-[#12121C] border-gray-700 flex items-center justify-center gap-2 relative">
         <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 bg-[#313131]">
           <svg
             viewBox="0 0 24 24"
@@ -17,17 +17,18 @@ const TranslateOutput = ({ inputText }: TranslateOutputProps) => {
           </svg>
         </div>
         <span>Bahasa Isyarat</span>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[11.5rem] h-0.5 bg-blue-500"></div>
       </div>
       <div className="flex-1 flex items-center justify-center p-4">
         {inputText ? (
           <div className="text-gray-300">
             {/* Here would go the sign language translation output */}
             {/* This could be an animation, video, or visualization */}
-            <p>Terjemahan akan muncul di sini</p>
+            <p>terjemahan akan muncul di sini</p>
           </div>
         ) : (
           <div className="text-gray-500 text-center">
-            <p>Terjemahan bahasa isyarat akan muncul di sini</p>
+            <p>terjemahan bahasa isyarat akan muncul di sini</p>
           </div>
         )}
       </div>

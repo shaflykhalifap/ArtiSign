@@ -13,7 +13,7 @@ const TranslateInput = ({
 }: TranslateInputProps) => {
   return (
     <div className="flex-1 bg-[#12121C] flex flex-col">
-      <div className="p-4 border-b border-gray-700 flex items-center justify-center gap-2">
+      <div className="p-4 border-b border-gray-700 flex items-center justify-center gap-2 relative">
         <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
           <svg
             viewBox="0 0 24 24"
@@ -25,12 +25,13 @@ const TranslateInput = ({
           </svg>
         </div>
         <span>Bahasa Indonesia</span>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[11.5rem] h-0.5 bg-blue-500"></div>
       </div>
       <div className="flex-1 flex flex-col">
         <textarea
           value={inputText}
           onChange={handleTextChange}
-          placeholder="Ketik atau tempelkan teks di sini..."
+          placeholder="ketik atau tempelkan teks di sini..."
           className="flex-1 bg-transparent p-4 text-white resize-none outline-none"
         ></textarea>
         <CharacterCounter

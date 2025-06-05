@@ -9,6 +9,7 @@ interface TranslateContainerProps {
   maxChars: number;
   handleTextChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   activeTab: "text" | "audio" | "camera";
+  setActiveTab?: (tab: "text" | "audio" | "camera") => void;
 }
 
 const TranslateContainer = ({
@@ -16,6 +17,7 @@ const TranslateContainer = ({
   maxChars,
   handleTextChange,
   activeTab,
+  setActiveTab,
 }: TranslateContainerProps) => {
   return (
     <div className="flex-1 flex flex-col md:flex-row gap-0 rounded-xl overflow-hidden border border-gray-800">
@@ -33,9 +35,10 @@ const TranslateContainer = ({
             } as React.ChangeEvent<HTMLTextAreaElement>;
             handleTextChange(e);
           }}
+          setActiveTab={setActiveTab}
         />
       ) : (
-        <SignLanguageContainer />
+        <SignLanguageContainer setActiveTab={setActiveTab} />
       )}
       {activeTab !== "camera" && <TranslateOutput inputText={inputText} />}
     </div>

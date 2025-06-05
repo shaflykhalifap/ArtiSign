@@ -1,6 +1,8 @@
 import TranslateInput from "./TranslateInput";
 import TranslateOutput from "./TranslateOutput";
 import AudioInput from "./AudioInput";
+import CameraInput from "./CameraInput";
+import SignLanguageContainer from "./SignLanguageContainer";
 
 interface TranslateContainerProps {
   inputText: string;
@@ -33,12 +35,9 @@ const TranslateContainer = ({
           }}
         />
       ) : (
-        // Camera input will be implemented later
-        <div className="flex-1 bg-[#12121C] flex items-center justify-center">
-          <p className="text-gray-400">Fitur kamera akan segera hadir</p>
-        </div>
+        <SignLanguageContainer />
       )}
-      <TranslateOutput inputText={inputText} />
+      {activeTab !== "camera" && <TranslateOutput inputText={inputText} />}
     </div>
   );
 };

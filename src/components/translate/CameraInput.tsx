@@ -1,18 +1,36 @@
 import { useState, useRef, useEffect } from "react";
 import { Camera, Loader2, CheckCircle, RefreshCcw } from "lucide-react";
+import PermissionPrompt from "../common/PermissionPrompt";
+import { usePermissions } from "../../hooks/usePermission";
 
 interface CameraInputProps {
   setInputText: (text: string) => void;
+  setActiveTab?: (tab: "text" | "audio" | "camera") => void; // Tambahkan prop ini
 }
 
-const CameraInput = ({ setInputText }: CameraInputProps) => {
+const CameraInput = ({
+  setInputText,
+  setActiveTab = () => {},
+}: CameraInputProps) => {
   const [isActive, setIsActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
+  const { cameraGranted, requestPermissions } = usePermissions();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    // Cek apakah browser mendukung getUserMedia
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // Tampilkan prompt perizinan saat komponen pertama kali dimuat
+      setTimeout(() => {
+        setShowPermissionPrompt(true);
+      }, 500); // Delay 500ms untuk efek yang lebih baik
+    }
+  }, []);
 
   // Function to start the camera stream
   const startCamera = async () => {
@@ -326,6 +344,20 @@ const CameraInput = ({ setInputText }: CameraInputProps) => {
 
       {/* Hidden canvas for image capture */}
       <canvas ref={canvasRef} className="hidden" />
+
+      {showPermissionPrompt && (
+        <PermissionPrompt
+          requiredPermission="camera"
+          onClose={() => setShowPermissionPrompt(false)}
+          switchToTextTab={() => {
+            if (typeof setActiveTab === "function") {
+              setActiveTab("text");
+            } else {
+              console.log("setActiveTab tidak tersedia");
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

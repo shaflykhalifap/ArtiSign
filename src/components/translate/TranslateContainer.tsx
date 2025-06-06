@@ -1,7 +1,6 @@
 import TranslateInput from "./TranslateInput";
 import TranslateOutput from "./TranslateOutput";
 import AudioInput from "./AudioInput";
-import CameraInput from "./CameraInput";
 import SignLanguageContainer from "./SignLanguageContainer";
 
 interface TranslateContainerProps {

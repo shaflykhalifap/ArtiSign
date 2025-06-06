@@ -10,7 +10,7 @@ interface AudioInputProps {
 
 const AudioInput = ({
   setInputText,
-  setActiveTab = () => {}, // Memberikan default function untuk prop opsional
+  setActiveTab, // Memberikan default function untuk prop opsional
 }: AudioInputProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -30,18 +30,15 @@ const AudioInput = ({
   // useEffect untuk menampilkan PermissionPrompt berdasarkan status izin
   useEffect(() => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      // Hanya tampilkan prompt jika izin belum diberikan
-      // Asumsi 'microphoneGranted' adalah boolean yang merefleksikan status terkini.
       if (!microphoneGranted) {
         const permissionCheckTimer = setTimeout(() => {
-          // Periksa lagi di dalam timeout, karena status bisa berubah cepat
           if (!microphoneGranted) {
             setShowPermissionPrompt(true);
           }
-        }, 500); // Delay untuk efek dan memberi waktu status izin stabil
+        }, 500);
         return () => clearTimeout(permissionCheckTimer);
       } else {
-        setShowPermissionPrompt(false); // Sembunyikan jika sudah diizinkan
+        setShowPermissionPrompt(false);
       }
     }
   }, [microphoneGranted]); // Bergantung pada microphoneGranted
@@ -74,12 +71,20 @@ const AudioInput = ({
     setError(null); // Reset error sebelumnya
 
     // Periksa izin lagi sebelum mencoba memulai (opsional, getUserMedia juga akan meminta)
-    // if (!microphoneGranted) {
-    //   // Bisa panggil requestPermissions dari hook di sini, atau tampilkan prompt
-    //   // await requestPermissions("audio"); // Sesuaikan dengan API hook Anda
-    //   // Jika setelah itu microphoneGranted masih false, tangani errornya.
-    //   // Untuk sekarang, kita biarkan getUserMedia yang menangani permintaan prompt browser.
-    // }
+    if (!microphoneGranted) {
+      try {
+        await requestPermissions("audio");
+        // Jika masih tidak granted setelah request, tampilkan error
+        if (!microphoneGranted) {
+          setError("Izin mikrofon diperlukan untuk merekam suara.");
+          return;
+        }
+      } catch (err) {
+        console.error("Error requesting permissions:", err);
+        setError("Gagal meminta izin mikrofon.");
+        return;
+      }
+    }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -111,6 +116,7 @@ const AudioInput = ({
           setError("Rekaman suara kosong, tidak ada yang diproses.");
           setInputText("");
         } else {
+          //! Nanti akan diperbaiki
           setInputText(
             "Hasil transkripsi suara akan muncul di sini (simulasi). Ukuran blob: " +
               audioBlob.size +
@@ -280,20 +286,11 @@ const AudioInput = ({
       {showPermissionPrompt && (
         <PermissionPrompt
           requiredPermission="audio" // "audio" lebih umum untuk MediaDevices API
-          onClose={() => {
-            setShowPermissionPrompt(false);
-            // Jika pengguna menutup prompt tanpa berinteraksi, mungkin beri tahu mereka
-            // bahwa fitur tidak akan berfungsi tanpa izin.
-            if (!microphoneGranted) {
-              setError("Izin mikrofon diperlukan untuk menggunakan fitur ini.");
-            }
-          }}
+          onClose={() => setShowPermissionPrompt(false)}
           switchToTextTab={() => {
-            // Logika dari diskusi sebelumnya: onClose di PermissionPrompt akan dipanggil dulu,
-            // lalu switchToTextTab.
-            setShowPermissionPrompt(false); // Pastikan prompt ditutup
+            setShowPermissionPrompt(false);
+            // Sekarang checking ini masuk akal
             if (setActiveTab) {
-              // Periksa apakah setActiveTab tersedia
               setActiveTab("text");
             }
           }}

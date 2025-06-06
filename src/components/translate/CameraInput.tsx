@@ -23,18 +23,29 @@ const CameraInput = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    // Cek apakah browser mendukung getUserMedia
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      // Tampilkan prompt perizinan saat komponen pertama kali dimuat
-      setTimeout(() => {
-        setShowPermissionPrompt(true);
-      }, 500); // Delay 500ms untuk efek yang lebih baik
+    if (cameraGranted) {
+      setShowPermissionPrompt(false);
+      startCamera();
+    } else {
+      setShowPermissionPrompt(true);
     }
-  }, []);
+  }, [cameraGranted]);
 
   // Function to start the camera stream
   const startCamera = async () => {
     setError(null); // Reset any previous errors
+
+    if (!cameraGranted) {
+      try {
+        await requestPermissions("camera");
+        // Tunggu sebentar untuk permission update
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      } catch (err) {
+        console.error("Error requesting camera permission:", err);
+        setError("Gagal meminta izin kamera");
+        return;
+      }
+    }
 
     // Ensure any existing stream is stopped
     if (streamRef.current) {
@@ -45,7 +56,7 @@ const CameraInput = ({
       console.log("Meminta akses kamera...");
       const constraints = {
         video: {
-          facingMode: "environment", // Use back camera on mobile if available
+          facingMode: "user", // Use back camera on mobile if available
           width: { ideal: 1280 },
           height: { ideal: 720 },
         },

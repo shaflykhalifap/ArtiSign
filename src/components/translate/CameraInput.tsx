@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  // Camera,
-  Loader2,
-  CheckCircle,
-  RefreshCcw,
-  Video,
-  Square,
-  // Play,
-} from "lucide-react";
+import { Loader2, CheckCircle, RefreshCcw, Video, Square } from "lucide-react";
 import Webcam from "react-webcam";
 import { useWebcam } from "../../hooks/useWebcam";
 import PermissionPrompt from "../common/PermissionPrompt";
@@ -39,6 +31,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
     setError,
     setShowPermissionPrompt,
     requestCameraPermission,
+    resetPermissionState,
   } = useWebcam();
 
   // Video constraints for optimal quality
@@ -48,17 +41,29 @@ const CameraInput: React.FC<CameraInputProps> = ({
     facingMode: "user",
   };
 
+  // Reset permission state when component unmounts
+  React.useEffect(() => {
+    resetPermissionState();
+  }, [resetPermissionState]);
+
   const handleProcessVideo = async () => {
     await processVideo(setInputText);
   };
 
   const handlePermissionGranted = async () => {
-    const granted = await requestCameraPermission();
-    if (granted) {
-      setShowPermissionPrompt(false);
-      setTimeout(() => {
-        startCamera();
-      }, 100);
+    try {
+      const granted = await requestCameraPermission();
+      if (granted) {
+        setShowPermissionPrompt(false);
+        setTimeout(() => {
+          startCamera();
+        }, 100);
+      }
+    } catch (error) {
+      // Jika permission ditolak, redirect ke text tab
+      if (setActiveTab) {
+        setActiveTab("text");
+      }
     }
   };
 
@@ -78,8 +83,8 @@ const CameraInput: React.FC<CameraInputProps> = ({
           <Video size={16} className="text-gray-400" />
         </div>
         <span>
-          Input Video {isActive ? "(Aktif)" : ""}{" "}
-          {isRecording ? "(Merekam)" : ""}
+          Input Video {isActive ? "(aktif)" : ""}{" "}
+          {isRecording ? "(merekam)" : ""}
         </span>
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[11.5rem] h-0.5 bg-blue-500"></div>
       </div>
@@ -103,7 +108,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
           // Processing State
           <div className="flex flex-col items-center justify-center space-y-4">
             <Loader2 size={48} className="text-blue-500 animate-spin" />
-            <p className="text-gray-300">Memproses video...</p>
+            <p className="text-gray-300">memproses video...</p>
             {capturedVideo && (
               <video
                 src={capturedVideo}
@@ -122,7 +127,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
                 className="w-full h-full object-contain"
                 preload="metadata"
               >
-                Your browser does not support the video tag.
+                browser Anda tidak mendukung video tag.
               </video>
             </div>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full max-w-md">
@@ -131,14 +136,14 @@ const CameraInput: React.FC<CameraInputProps> = ({
                 className="flex-1 flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-md transition-colors"
               >
                 <RefreshCcw size={18} className="mr-2" />
-                <span>Rekam Ulang</span>
+                <span>rekam ulang</span>
               </button>
               <button
                 onClick={handleProcessVideo}
                 className="flex-1 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md transition-colors"
               >
                 <CheckCircle size={18} className="mr-2" />
-                <span>Gunakan Video</span>
+                <span>gunakan video</span>
               </button>
             </div>
           </div>
@@ -160,15 +165,15 @@ const CameraInput: React.FC<CameraInputProps> = ({
                     if (error.name === "NotAllowedError") {
                       setShowPermissionPrompt(true);
                       setError(
-                        "Izin kamera ditolak. Harap berikan izin dan coba lagi."
+                        "izin kamera ditolak. harap berikan izin dan coba lagi."
                       );
                     } else if (error.name === "NotFoundError") {
                       setError(
-                        "Tidak ada kamera yang terdeteksi di perangkat Anda."
+                        "tidak ada kamera yang terdeteksi di perangkat Anda."
                       );
                     } else {
                       setError(
-                        "Tidak dapat mengakses kamera. Coba refresh halaman."
+                        "tidak dapat mengakses kamera. coba refresh halaman."
                       );
                     }
                   } else if (typeof error === "string") {
@@ -179,25 +184,25 @@ const CameraInput: React.FC<CameraInputProps> = ({
                     ) {
                       setShowPermissionPrompt(true);
                       setError(
-                        "Izin kamera ditolak. Harap berikan izin dan coba lagi."
+                        "izin kamera ditolak. harap berikan izin dan coba lagi."
                       );
                     } else if (
                       error.includes("NotFound") ||
                       error.includes("No device")
                     ) {
                       setError(
-                        "Tidak ada kamera yang terdeteksi di perangkat Anda."
+                        "tidak ada kamera yang terdeteksi di perangkat Anda."
                       );
                     } else {
                       setError(
                         error ||
-                          "Tidak dapat mengakses kamera. Coba refresh halaman."
+                          "tidak dapat mengakses kamera. coba refresh halaman."
                       );
                     }
                   } else {
                     // Fallback for any other error type
                     setError(
-                      "Tidak dapat mengakses kamera. Coba refresh halaman."
+                      "tidak dapat mengakses kamera. coba refresh halaman."
                     );
                   }
                 }}
@@ -232,7 +237,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
                   className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full transition-colors"
                 >
                   <Video size={20} className="mr-2" />
-                  <span>Mulai Rekam</span>
+                  <span>mulai rekam</span>
                 </button>
               ) : (
                 <button
@@ -240,7 +245,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
                   className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-full transition-colors"
                 >
                   <Square size={20} className="mr-2" />
-                  <span>Stop ({formatTime(recordingTime)})</span>
+                  <span>stop ({formatTime(recordingTime)})</span>
                 </button>
               )}
             </div>

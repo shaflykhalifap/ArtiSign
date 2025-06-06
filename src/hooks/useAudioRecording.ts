@@ -1,59 +1,43 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { usePermissions } from "./usePermission";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 interface UseAudioRecordingReturn {
   isRecording: boolean;
   isProcessing: boolean;
   recordingTime: number;
-  showPermissionPrompt: boolean;
+  recordedAudio: string | null;
   error: string | null;
-  hasPermission: boolean;
+  hasPermission: boolean | null;
+  showPermissionPrompt: boolean;
   startRecording: () => Promise<void>;
   stopRecording: () => void;
+  retakeAudio: () => void;
+  processAudio: (onResult: (text: string) => void) => Promise<void>;
   clearError: () => void;
+  setError: (message: string) => void;
   setShowPermissionPrompt: (show: boolean) => void;
   requestAudioPermission: () => Promise<boolean>;
-  processAudio: (onResult: (text: string) => void) => Promise<void>;
-  hasAudioToProcess: boolean;
+  resetPermissionState: () => void;
 }
 
 export const useAudioRecording = (): UseAudioRecordingReturn => {
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recordedChunks = useRef<Blob[]>([]);
+  const timerRef = useRef<number | null>(null);
+
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
+  const [recordedAudio, setRecordedAudio] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasAudioToProcess, setHasAudioToProcess] = useState(false);
-
-  const { microphoneGranted } = usePermissions();
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<number | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  // Check permission on mount
-  useEffect(() => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      if (!microphoneGranted) {
-        const permissionCheckTimer = setTimeout(() => {
-          if (!microphoneGranted) {
-            setShowPermissionPrompt(true);
-          }
-        }, 500);
-        return () => clearTimeout(permissionCheckTimer);
-      } else {
-        setShowPermissionPrompt(false);
-      }
-    }
-  }, [microphoneGranted]);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
 
   // Recording timer effect
   useEffect(() => {
     if (isRecording) {
-      setRecordingTime(0);
       timerRef.current = window.setInterval(() => {
-        setRecordingTime((prevTime) => prevTime + 1);
+        setRecordingTime((prev) => prev + 1);
       }, 1000);
     } else {
       if (timerRef.current) {
@@ -70,36 +54,137 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
     };
   }, [isRecording]);
 
-  const requestAudioPermission = useCallback(async (): Promise<boolean> => {
+  const checkAudioPermission = useCallback(async () => {
+    console.log("🎵 Checking audio permission...");
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const permissionResult = await navigator.permissions.query({
+        name: "microphone" as PermissionName,
+      });
+
+      console.log("🎵 Permission result:", permissionResult.state);
+
+      if (permissionResult.state === "denied") {
+        console.log("🎵 Permission denied, setting state");
+        setHasPermission(false);
+        setShowPermissionPrompt(true);
+        setError(
+          "Izin mikrofon telah diblokir. Silakan aktifkan melalui pengaturan browser."
+        );
+      } else if (permissionResult.state === "granted") {
+        console.log("🎵 Permission granted");
+        setHasPermission(true);
+        setShowPermissionPrompt(false);
+      } else {
+        // state === "prompt"
+        console.log("🎵 Permission prompt state - showing permission prompt");
+        setHasPermission(null);
+        setShowPermissionPrompt(true);
+      }
+    } catch (err) {
+      console.log("🎵 Permission API not supported for microphone");
+      setHasPermission(null);
+      // Untuk browser yang tidak support, show prompt saat user coba record
+      setShowPermissionPrompt(true);
+    }
+  }, []);
+
+  const resetPermissionState = useCallback(() => {
+    console.log("🎵 Resetting permission state for audio tab");
+    console.log("🎵 Current hasPermission:", hasPermission);
+
+    // Jika permission false atau null, langsung show prompt
+    if (hasPermission === false || hasPermission === null) {
+      console.log(
+        "🎵 Setting showPermissionPrompt to true because hasPermission is:",
+        hasPermission
+      );
+      setShowPermissionPrompt(true);
+      if (hasPermission === false) {
+        setError("Izin mikrofon diperlukan untuk menggunakan fitur ini.");
+      }
+    }
+
+    // Trigger permission check
+    checkAudioPermission();
+  }, [hasPermission, checkAudioPermission]);
+
+  // Check permission on mount
+  useEffect(() => {
+    console.log("🎵 useAudioRecording mounted");
+    checkAudioPermission();
+  }, [checkAudioPermission]);
+
+  const requestAudioPermission = useCallback(async (): Promise<boolean> => {
+    console.log("🎵 Requesting audio permission...");
+
+    try {
+      // Check if permission is already denied
+      try {
+        const permissionResult = await navigator.permissions.query({
+          name: "microphone" as PermissionName,
+        });
+
+        if (permissionResult.state === "denied") {
+          console.log("🎵 Microphone permission already denied by user");
+          setError(
+            "Izin mikrofon telah diblokir. Silakan aktifkan melalui pengaturan browser."
+          );
+          throw new DOMException(
+            "Permission already denied",
+            "NotAllowedError"
+          );
+        }
+      } catch (permErr) {
+        console.log(
+          "🎵 Permission API not supported, proceeding with getUserMedia"
+        );
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100,
+        },
+      });
+
+      // Stop the stream immediately as we just needed to check permission
       stream.getTracks().forEach((track) => track.stop());
+
+      setHasPermission(true);
       setShowPermissionPrompt(false);
       setError(null);
       return true;
     } catch (err) {
-      console.error("Audio permission denied:", err);
+      console.error("🎵 Audio permission denied:", err);
+      setHasPermission(false);
 
       if (err instanceof DOMException && err.name === "NotAllowedError") {
-        setError("Izin mikrofon ditolak. Harap berikan izin dan coba lagi.");
-      } else {
-        setError("Gagal meminta izin mikrofon.");
+        setError(
+          "Izin mikrofon ditolak. Silakan aktifkan melalui pengaturan browser."
+        );
+        throw err;
       }
       return false;
     }
   }, []);
 
   const startRecording = useCallback(async () => {
-    setError(null);
-    setHasAudioToProcess(false);
-
-    // Check permission first
-    if (!microphoneGranted) {
-      setShowPermissionPrompt(true);
-      return;
-    }
-
     try {
+      console.log("🎵 Starting audio recording...");
+
+      // Clear any previous recording
+      if (recordedAudio) {
+        URL.revokeObjectURL(recordedAudio);
+        setRecordedAudio(null);
+      }
+
+      recordedChunks.current = [];
+      setRecordingTime(0);
+      setError(null);
+
+      // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
@@ -109,134 +194,81 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
       });
 
       streamRef.current = stream;
+      setHasPermission(true);
 
-      // Check if MediaRecorder is supported
-      if (!MediaRecorder.isTypeSupported("audio/webm")) {
-        throw new Error("Audio recording not supported");
-      }
+      // Create MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: "audio/webm;codecs=opus",
+      });
 
-      const options = {
-        mimeType: "audio/webm",
-        audioBitsPerSecond: 128000,
-      };
-
-      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
-        console.log("Data available:", event.data.size);
         if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
+          recordedChunks.current.push(event.data);
         }
       };
 
-      mediaRecorder.onstop = async () => {
-        console.log(
-          "Recording stopped, chunks:",
-          audioChunksRef.current.length
-        );
+      mediaRecorder.onstop = () => {
+        console.log("🎵 Recording stopped, processing chunks...");
+        const blob = new Blob(recordedChunks.current, {
+          type: "audio/webm;codecs=opus",
+        });
+        const audioUrl = URL.createObjectURL(blob);
+        setRecordedAudio(audioUrl);
 
-        if (audioChunksRef.current.length > 0) {
-          const audioBlob = new Blob(audioChunksRef.current, {
-            type: options.mimeType,
-          });
-
-          console.log("Audio blob size:", audioBlob.size);
-
-          if (audioBlob.size > 0) {
-            setHasAudioToProcess(true);
-          } else {
-            setError("Rekaman suara kosong, tidak ada yang diproses.");
-            setHasAudioToProcess(false);
-          }
-        } else {
-          setError("Tidak ada data audio yang terekam.");
-          setHasAudioToProcess(false);
-        }
-
-        // Stop stream tracks
+        // Clean up stream
         if (streamRef.current) {
           streamRef.current.getTracks().forEach((track) => track.stop());
           streamRef.current = null;
         }
       };
 
-      mediaRecorder.onstart = () => {
-        console.log("Recording started");
-        setIsRecording(true);
-      };
-
-      mediaRecorder.onerror = (event) => {
-        console.error("MediaRecorder error:", event);
-        setError("Terjadi kesalahan pada perekam media.");
-        setIsRecording(false);
-
-        // Stop stream on error
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((track) => track.stop());
-          streamRef.current = null;
-        }
-      };
-
-      // Start recording with timeslice for better data collection
-      mediaRecorder.start(1000); // Collect data every second
+      mediaRecorder.start();
+      setIsRecording(true);
+      console.log("🎵 Recording started successfully");
     } catch (err) {
-      console.error("Error accessing microphone:", err);
-      let errorMessage = "Tidak dapat mengakses mikrofon.";
+      console.error("🎵 Error starting recording:", err);
 
-      if (err instanceof DOMException) {
-        switch (err.name) {
-          case "NotAllowedError":
-            errorMessage =
-              "Izin mikrofon ditolak. Harap berikan izin dan coba lagi.";
-            setShowPermissionPrompt(true);
-            break;
-          case "NotFoundError":
-          case "DevicesNotFoundError":
-            errorMessage =
-              "Tidak ada mikrofon yang terdeteksi di perangkat Anda.";
-            break;
-          case "NotReadableError":
-          case "TrackStartError":
-            errorMessage =
-              "Mikrofon sedang digunakan oleh aplikasi lain atau ada masalah hardware.";
-            break;
-          case "OverconstrainedError":
-            errorMessage =
-              "Pengaturan mikrofon tidak didukung oleh perangkat Anda.";
-            break;
-          default:
-            errorMessage = `Error (${err.name}): Gagal memulai perekaman.`;
-        }
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
+      if (err instanceof DOMException && err.name === "NotAllowedError") {
+        setHasPermission(false);
+        setShowPermissionPrompt(true);
+        setError("Izin mikrofon diperlukan untuk merekam audio.");
+      } else {
+        setError("Gagal memulai perekaman. Pastikan mikrofon terhubung.");
       }
-
-      setError(errorMessage);
-      setIsRecording(false);
     }
-  }, [microphoneGranted]);
+  }, [recordedAudio]);
 
   const stopRecording = useCallback(() => {
-    console.log("Stopping recording...");
+    console.log("🎵 Stopping audio recording...");
 
-    if (mediaRecorderRef.current) {
-      const recorder = mediaRecorderRef.current;
-
-      if (recorder.state === "recording") {
-        recorder.stop();
-      } else {
-        console.log("Recorder not in recording state:", recorder.state);
-      }
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
+      mediaRecorderRef.current.stop();
     }
 
     setIsRecording(false);
   }, []);
 
+  const retakeAudio = useCallback(() => {
+    console.log("🎵 Retaking audio...");
+
+    // Clean up previous audio URL
+    if (recordedAudio) {
+      URL.revokeObjectURL(recordedAudio);
+    }
+
+    setRecordedAudio(null);
+    setError(null);
+    setRecordingTime(0);
+  }, [recordedAudio]);
+
   const processAudio = useCallback(
     async (onResult: (text: string) => void) => {
-      if (!hasAudioToProcess || audioChunksRef.current.length === 0) {
+      if (!recordedAudio) {
         setError("Tidak ada audio untuk diproses");
         return;
       }
@@ -244,87 +276,68 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
       setIsProcessing(true);
 
       try {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
-        });
+        // Simulate audio processing (replace with actual API call)
+        await new Promise((resolve) => setTimeout(resolve, 3000));
 
-        console.log("Processing audio blob size:", audioBlob.size);
+        // Mock result - replace with actual speech-to-text processing
+        const mockResult =
+          "Halo, ini adalah hasil konversi suara ke teks. Terima kasih telah menggunakan fitur ini.";
 
-        // Simulate speech-to-text processing
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        onResult(mockResult);
 
-        if (audioBlob.size === 0) {
-          setError("Rekaman suara kosong, tidak ada yang diproses.");
-          onResult("");
-        } else {
-          // Mock successful transcription
-          const mockResult = `Hasil transkripsi suara: "Ini adalah contoh hasil dari speech-to-text processing." (Simulasi - ${audioBlob.size} bytes)`;
-          onResult(mockResult);
-        }
-
-        // Reset state after processing
-        audioChunksRef.current = [];
-        setHasAudioToProcess(false);
+        // Clean up
+        URL.revokeObjectURL(recordedAudio);
+        setRecordedAudio(null);
         setError(null);
       } catch (error) {
-        console.error("Error processing audio:", error);
+        console.error("🎵 Error processing audio:", error);
         setError("Gagal memproses audio");
       } finally {
         setIsProcessing(false);
       }
     },
-    [hasAudioToProcess]
+    [recordedAudio]
   );
 
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
+  const setErrorMessage = useCallback((message: string) => {
+    setError(message);
+  }, []);
+
   // Cleanup effect
   useEffect(() => {
     return () => {
-      // Clear timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
-        timerRef.current = null;
       }
-
-      // Stop recording and clean up
-      if (mediaRecorderRef.current) {
-        const recorder = mediaRecorderRef.current;
-        if (recorder.state === "recording") {
-          recorder.stop();
-        }
+      if (recordedAudio) {
+        URL.revokeObjectURL(recordedAudio);
       }
-
-      // Stop stream tracks
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => {
-          if (track.readyState === "live") {
-            track.stop();
-          }
-        });
-        streamRef.current = null;
+        streamRef.current.getTracks().forEach((track) => track.stop());
       }
-
-      // Clear audio chunks
-      audioChunksRef.current = [];
     };
-  }, []);
+  }, [recordedAudio]);
 
   return {
     isRecording,
     isProcessing,
     recordingTime,
-    showPermissionPrompt,
+    recordedAudio,
     error,
-    hasPermission: microphoneGranted,
+    hasPermission: hasPermission === true,
+    showPermissionPrompt,
     startRecording,
     stopRecording,
+    retakeAudio,
+    processAudio,
     clearError,
+    setError: setErrorMessage,
     setShowPermissionPrompt,
     requestAudioPermission,
-    processAudio,
-    hasAudioToProcess,
+    resetPermissionState,
   };
 };

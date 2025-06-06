@@ -21,6 +21,8 @@ interface UseWebcamReturn {
   setError: (message: string) => void;
   setShowPermissionPrompt: (show: boolean) => void;
   requestCameraPermission: () => Promise<boolean>;
+  resetCameraState: () => void;
+  resetPermissionState: () => void;
 }
 
 export const useWebcam = (): UseWebcamReturn => {
@@ -109,12 +111,20 @@ export const useWebcam = (): UseWebcamReturn => {
 
       if (err instanceof DOMException && err.name === "NotAllowedError") {
         setError(
-          "Izin kamera dan mikrofon ditolak. Harap berikan izin dan coba lagi."
+          "izin kamera dan mikrofon ditolak. harap berikan izin dan coba lagi."
         );
+        throw err;
       }
       return false;
     }
   }, []);
+
+  const resetPermissionState = useCallback(() => {
+    console.log("Resetting permission state for camera tab");
+    if (hasPermission === false) {
+      setShowPermissionPrompt(true);
+    }
+  }, [hasPermission]);
 
   const startCamera = useCallback(async () => {
     console.log("Starting camera...");
@@ -148,7 +158,7 @@ export const useWebcam = (): UseWebcamReturn => {
     console.log("Starting video recording...");
 
     if (!webcamRef.current?.stream) {
-      setError("Kamera tidak tersedia untuk merekam");
+      setError("kamera tidak tersedia untuk merekam");
       return;
     }
 
@@ -188,7 +198,7 @@ export const useWebcam = (): UseWebcamReturn => {
 
       mediaRecorder.onerror = (event) => {
         console.error("MediaRecorder error:", event);
-        setError("Terjadi kesalahan saat merekam video");
+        setError("terjadi kesalahan saat merekam video");
         setIsRecording(false);
       };
 
@@ -197,13 +207,11 @@ export const useWebcam = (): UseWebcamReturn => {
       setError(null);
     } catch (err) {
       console.error("Error starting recording:", err);
-      setError("Gagal memulai perekaman video");
+      setError("gagal memulai perekaman video");
     }
   }, []);
 
   const stopRecording = useCallback(() => {
-    console.log("Stopping video recording...");
-
     if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state === "recording"
@@ -217,7 +225,6 @@ export const useWebcam = (): UseWebcamReturn => {
   const retakeVideo = useCallback(() => {
     console.log("Retaking video...");
 
-    // Clean up previous video URL
     if (capturedVideo) {
       URL.revokeObjectURL(capturedVideo);
     }
@@ -230,7 +237,7 @@ export const useWebcam = (): UseWebcamReturn => {
   const processVideo = useCallback(
     async (onResult: (text: string) => void) => {
       if (!capturedVideo) {
-        setError("Tidak ada video untuk diproses");
+        setError("tidak ada video untuk diproses");
         return;
       }
 
@@ -243,7 +250,7 @@ export const useWebcam = (): UseWebcamReturn => {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         const mockResult =
-          "Hasil penerjemahan dari video akan muncul di sini (simulasi video recording)";
+          "hasil penerjemahan dari video akan muncul di sini (simulasi video recording)";
         onResult(mockResult);
 
         // Clean up
@@ -251,8 +258,7 @@ export const useWebcam = (): UseWebcamReturn => {
         setCapturedVideo(null);
         setError(null);
       } catch (error) {
-        console.error("Error processing video:", error);
-        setError("Gagal memproses video");
+        setError("gagal memproses video");
       } finally {
         setIsProcessing(false);
       }
@@ -280,6 +286,37 @@ export const useWebcam = (): UseWebcamReturn => {
     };
   }, [capturedVideo]);
 
+  const resetCameraState = useCallback(() => {
+    // Stop any active recording
+    if (isRecording && mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+
+    // Clear timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Clean up video URL
+    if (capturedVideo) {
+      URL.revokeObjectURL(capturedVideo);
+    }
+
+    // Reset all states
+    setIsActive(false);
+    setIsRecording(false);
+    setRecordingTime(0);
+    setCapturedVideo(null);
+    setError(null);
+    setIsProcessing(false);
+    setShowPermissionPrompt(false);
+
+    // Clear recorded chunks
+    recordedChunks.current = [];
+    mediaRecorderRef.current = null;
+  }, [isRecording, capturedVideo]);
+
   return {
     webcamRef,
     isActive,
@@ -300,5 +337,7 @@ export const useWebcam = (): UseWebcamReturn => {
     setError: setErrorMessage,
     setShowPermissionPrompt,
     requestCameraPermission,
+    resetCameraState,
+    resetPermissionState,
   };
 };

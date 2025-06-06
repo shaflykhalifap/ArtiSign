@@ -16,12 +16,26 @@ import CommunityActive from "./components/about/CommunityActive";
 
 const App = () => {
   return (
-    <div className="flex">
-      <div className="fixed top-0 left-0 h-full z-10">
-        <Sidebar />
-      </div>
+    <div
+      className="
+      /* Mobile/Tablet: Full width layout dengan bottom navigation */
+      min-h-screen bg-[#1a1a1a] pb-20
+      /* Desktop: Flex layout dengan sidebar */
+      lg:flex lg:pb-0
+    "
+    >
+      {/* Sidebar - Responsive */}
+      <Sidebar />
 
-      <div className="flex-1 ml-[180px] flex flex-col min-h-screen">
+      {/* Main Content Area */}
+      <main
+        className="
+        /* Mobile/Tablet: Full width, konten terpusat */
+        w-full min-h-screen flex flex-col
+        /* Desktop: Flex-1 setelah sidebar (tidak ada margin left) */
+        lg:flex-1 lg:min-h-screen
+      "
+      >
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/translate" element={<TranslatePage />} />
@@ -35,7 +49,7 @@ const App = () => {
             <Route path="community" element={<CommunityActive />} />
           </Route>
         </Routes>
-      </div>
+      </main>
     </div>
   );
 };

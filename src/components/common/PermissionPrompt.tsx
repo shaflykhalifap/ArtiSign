@@ -6,32 +6,42 @@ interface PermissionPromptProps {
   onClose?: () => void;
   requiredPermission: "camera" | "audio" | "both";
   switchToTextTab?: () => void;
+  onPermissionRequest?: () => Promise<void>; // Custom handler
 }
 
 const PermissionPrompt: React.FC<PermissionPromptProps> = ({
   onClose = () => {},
   requiredPermission,
   switchToTextTab,
+  onPermissionRequest,
 }) => {
   const { requestPermissions } = usePermissions();
-  //   const navigate = useNavigate(); // Hook untuk navigasi
 
-  const handlePrivacySettings = () => {
-    requestPermissions(requiredPermission).then(() => {
+  const handlePrivacySettings = async () => {
+    try {
+      if (onPermissionRequest) {
+        // Use custom handler if provided
+        await onPermissionRequest();
+      } else {
+        // Use default hook
+        await requestPermissions(requiredPermission);
+      }
       onClose();
-    });
+    } catch (error) {
+      console.error("Error requesting permissions:", error);
+    }
   };
 
   // Fungsi redirect ke TranslateInput saat tombol tutup diklik
   const handleClose = () => {
     console.log("handleClose dipanggil");
-    onClose();
 
     // Hanya gunakan switchToTextTab jika tersedia
     if (typeof switchToTextTab === "function") {
       console.log("Memanggil switchToTextTab");
       switchToTextTab();
     }
+    onClose();
   };
 
   // Tentukan icon berdasarkan jenis izin yang diminta
@@ -58,7 +68,7 @@ const PermissionPrompt: React.FC<PermissionPromptProps> = ({
             <PermissionIcon />
           </div>
           <h2 className="text-white text-2xl font-medium mb-3">
-            kami memerlukan izin Anda
+            Kami memerlukan izin Anda
           </h2>
           <p className="text-gray-300 text-center mb-6">
             untuk menggunakan fitur ini, buka pengaturan privasi dan izinkan
@@ -81,7 +91,7 @@ const PermissionPrompt: React.FC<PermissionPromptProps> = ({
             Pengaturan Privasi
           </button>
           <button
-            onClick={handleClose} // Ganti onClose dengan handleClose
+            onClick={handleClose}
             className="absolute top-3 right-3 rounded-full p-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors"
             aria-label="Tutup"
           >

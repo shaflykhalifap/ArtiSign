@@ -1,3 +1,4 @@
+import React from "react";
 import { Home, Bot, BookOpen, Info, Languages } from "lucide-react";
 import { NavLink } from "react-router-dom";
 

@@ -1,3 +1,4 @@
+import React from "react";
 import Container from "../common/Container";
 import { ArrowRight } from "lucide-react";
 

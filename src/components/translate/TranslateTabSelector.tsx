@@ -16,7 +16,7 @@ const TranslateTabSelector = ({
       <button
         className={`px-5 py-2 flex items-center gap-2 ${
           activeTab === "text"
-            ? "bg-[#111] text-white"
+            ? "bg-white/80 text-black font-medium"
             : "text-gray-400 hover:bg-[#1f1f1f]"
         }`}
         onClick={() => setActiveTab("text")}
@@ -27,7 +27,7 @@ const TranslateTabSelector = ({
       <button
         className={`px-5 py-2 flex items-center gap-2 ${
           activeTab === "audio"
-            ? "bg-[#111] text-white"
+            ? "bg-white/80 text-black font-medium"
             : "text-gray-400 hover:bg-[#1f1f1f]"
         }`}
         onClick={() => setActiveTab("audio")}
@@ -38,7 +38,7 @@ const TranslateTabSelector = ({
       <button
         className={`px-5 py-2 flex items-center gap-2 ${
           activeTab === "camera"
-            ? "bg-[#111] text-white"
+            ? "bg-white/80 text-black font-medium"
             : "text-gray-400 hover:bg-[#1f1f1f]"
         }`}
         onClick={() => setActiveTab("camera")}

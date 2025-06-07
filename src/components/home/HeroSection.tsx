@@ -1,6 +1,7 @@
 import React from "react";
 import Container from "../common/Container";
 import { ArrowRight } from "lucide-react";
+import { NavLink } from "react-router";
 
 const HeroSection: React.FC = () => {
   return (
@@ -19,10 +20,17 @@ const HeroSection: React.FC = () => {
           </p>
 
           <div className="flex justify-center mt-12">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full inline-flex items-center transition">
-              Mulai Sekarang
+            <NavLink
+              to="/translate"
+              className="bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 text-white font-semibold px-6 py-3 rounded-full inline-flex items-center transition-all duration-200"
+              tabIndex={0}
+              autoFocus
+              role="button"
+              aria-label="Mulai menggunakan fitur terjemahan bahasa isyarat"
+            >
+              mulai sekarang
               <ArrowRight className="ml-2 w-4 h-4" />
-            </button>
+            </NavLink>
           </div>
         </div>
       </Container>

@@ -33,7 +33,7 @@ const App = () => {
         /* Mobile/Tablet: Full width, konten terpusat */
         w-full min-h-screen flex flex-col
         /* Desktop: Flex-1 setelah sidebar (tidak ada margin left) */
-        lg:flex-1 lg:min-h-screen
+        lg:ml-44 lg:pb-0
       "
       >
         <Routes>

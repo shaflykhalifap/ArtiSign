@@ -1,12 +1,9 @@
-import { Link2 } from "lucide-react";
-
 const PrivacyActive = () => {
   return (
     <div className="space-y-6">
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
           syarat umum
-          <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
           kebijakan privasi ArtiSign itu sederhana: kami tidak mengumpulkan atau
@@ -19,7 +16,6 @@ const PrivacyActive = () => {
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
           pemrosesan di perangkat
-          <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
           alat yang menggunakan pemrosesan di perangkat akan berjalan secara
@@ -30,7 +26,6 @@ const PrivacyActive = () => {
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
           penyimpanan (saving)
-          <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
           dalam beberapa kasus, ArtiSign dapat mengenkripsi dan menyimpan
@@ -49,7 +44,6 @@ const PrivacyActive = () => {
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
           enkripsi
-          <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
           data tunnel yang disimpan sementara akan dienkripsi menggunakan

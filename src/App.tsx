@@ -9,10 +9,6 @@ import ArticlePage from "./pages/ArticlePage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import AboutPage from "./pages/AboutPage";
 import Sidebar from "./components/layout/Sidebar";
-import AboutActive from "./components/about/AboutActive";
-import TermsActive from "./components/about/TermsActive";
-import PrivacyActive from "./components/about/PrivacyActive";
-import CommunityActive from "./components/about/CommunityActive";
 
 const App = () => {
   return (
@@ -42,12 +38,11 @@ const App = () => {
           <Route path="/chatbot" element={<ChatbotPage />} />
           <Route path="/article" element={<ArticlePage />} />
           <Route path="/article/:id" element={<ArticleDetailPage />} />
-          <Route path="/about" element={<AboutPage />}>
-            <Route index element={<AboutActive />} />
-            <Route path="terms" element={<TermsActive />} />
-            <Route path="privacy" element={<PrivacyActive />} />
-            <Route path="community" element={<CommunityActive />} />
-          </Route>
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/about/general" element={<AboutPage />} />
+          <Route path="/about/community" element={<AboutPage />} />
+          <Route path="/about/terms" element={<AboutPage />} />
+          <Route path="/about/privacy" element={<AboutPage />} />
         </Routes>
       </main>
     </div>

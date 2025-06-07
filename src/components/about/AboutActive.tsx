@@ -1,12 +1,9 @@
-import { Link2 } from "lucide-react";
-
 const AboutActive = () => {
   return (
     <div className="space-y-6">
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
           cara terbaik untuk berkomunikasi dengan semua orang
-          <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
           ArtiSign membantu kamu menerjemahkan teks bahasa Indonesia ke bahasa
@@ -22,7 +19,6 @@ const AboutActive = () => {
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
           motivasi
-          <Link2 size={16} className="text-white/60" />
         </h2>
         <p className="text-gray-300">
           ArtiSign dibangun untuk memberdayakan komunikasi yang inklusif di
@@ -34,7 +30,6 @@ const AboutActive = () => {
       <section>
         <h2 className="text-l font-bold text-white mb-2 flex items-center gap-2">
           cara kerja
-          <Link2 size={16} className="text-white/60" />
         </h2>
         <ol className="list-decimal pl-8 text-gray-300 space-y-4 relative">
           <li className="pl-2">

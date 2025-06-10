@@ -1,4 +1,16 @@
-export const Arm = ({
+import React from "react";
+import * as THREE from "three";
+
+interface ArmProps {
+  side: "left" | "right";
+  armRef: React.RefObject<THREE.Object3D | null>;
+  forearmRef: React.RefObject<THREE.Object3D | null>;
+  handRef: React.RefObject<THREE.Object3D | null>;
+  fingersRef: React.RefObject<(THREE.Object3D | null)[]>;
+  position: [number, number, number];
+}
+
+export const Arm: React.FC<ArmProps> = ({
   side,
   armRef,
   forearmRef,
@@ -30,7 +42,11 @@ export const Arm = ({
           <group position={[0, -0.12, 0]}>
             {/* Thumb */}
             <mesh
-              ref={(el) => (fingersRef.current[0] = el)}
+              ref={(el) => {
+                if (fingersRef.current) {
+                  fingersRef.current[0] = el;
+                }
+              }}
               position={[isLeft ? 0.05 : -0.05, 0.02, 0.02]}
               rotation={[0, 0, isLeft ? -0.5 : 0.5]}
             >
@@ -40,7 +56,11 @@ export const Arm = ({
 
             {/* Index */}
             <mesh
-              ref={(el) => (fingersRef.current[1] = el)}
+              ref={(el) => {
+                if (fingersRef.current) {
+                  fingersRef.current[1] = el;
+                }
+              }}
               position={[isLeft ? 0.025 : -0.025, -0.03, 0]}
             >
               <boxGeometry args={[0.015, 0.06, 0.015]} />
@@ -49,7 +69,11 @@ export const Arm = ({
 
             {/* Middle */}
             <mesh
-              ref={(el) => (fingersRef.current[2] = el)}
+              ref={(el) => {
+                if (fingersRef.current) {
+                  fingersRef.current[2] = el;
+                }
+              }}
               position={[0, -0.035, 0]}
             >
               <boxGeometry args={[0.015, 0.07, 0.015]} />
@@ -58,7 +82,11 @@ export const Arm = ({
 
             {/* Ring */}
             <mesh
-              ref={(el) => (fingersRef.current[3] = el)}
+              ref={(el) => {
+                if (fingersRef.current) {
+                  fingersRef.current[3] = el;
+                }
+              }}
               position={[isLeft ? -0.025 : 0.025, -0.03, 0]}
             >
               <boxGeometry args={[0.015, 0.06, 0.015]} />
@@ -67,7 +95,11 @@ export const Arm = ({
 
             {/* Pinky */}
             <mesh
-              ref={(el) => (fingersRef.current[4] = el)}
+              ref={(el) => {
+                if (fingersRef.current) {
+                  fingersRef.current[4] = el;
+                }
+              }}
               position={[isLeft ? -0.04 : 0.04, -0.025, 0]}
             >
               <boxGeometry args={[0.015, 0.05, 0.015]} />

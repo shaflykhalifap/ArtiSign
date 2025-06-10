@@ -4,6 +4,28 @@ import { OrbitControls } from "@react-three/drei";
 import signLanguageGestures from "../../data/SignLanguageGestures";
 import { Character } from "../character/Character";
 
+interface FingerData {
+  rotation: [number, number, number];
+  visible: boolean;
+}
+
+interface HandConfig {
+  rotation: [number, number, number];
+  position?: [number, number, number];
+  fingerConfig: {
+    thumb: FingerData;
+    index: FingerData;
+    middle: FingerData;
+    ring: FingerData;
+    pinky: FingerData;
+  };
+}
+
+interface GestureConfig {
+  leftHand?: HandConfig;
+  rightHand?: HandConfig;
+}
+
 function Lights() {
   return (
     <>
@@ -15,21 +37,25 @@ function Lights() {
   );
 }
 
-const TranslateOutput = ({ inputText }) => {
-  const [currentLetter, setCurrentLetter] = useState("");
-  const [currentGesture, setCurrentGesture] = useState(
+interface TranslateOutputProps {
+  inputText: string;
+}
+
+const TranslateOutput: React.FC<TranslateOutputProps> = ({ inputText }) => {
+  const [currentLetter, setCurrentLetter] = useState<string>("");
+  const [currentGesture, setCurrentGesture] = useState<GestureConfig>(
     signLanguageGestures.DEFAULT
   );
-  const [isTranslating, setIsTranslating] = useState(false);
+  const [isTranslating, setIsTranslating] = useState<boolean>(false);
 
   useEffect(() => {
-    let intervalId;
+    let intervalId: NodeJS.Timeout | undefined;
 
     if (inputText) {
       const letters = inputText
         .toUpperCase()
         .split("")
-        .filter((char) => /[A-Z]/.test(char));
+        .filter((char: string) => /[A-Z]/.test(char));
 
       if (letters.length > 0) {
         setIsTranslating(true);
@@ -38,9 +64,13 @@ const TranslateOutput = ({ inputText }) => {
         const updateLetter = () => {
           const letter = letters[currentIndex];
           setCurrentLetter(letter);
-          setCurrentGesture(
-            signLanguageGestures[letter] || signLanguageGestures.DEFAULT
-          );
+
+          const gesture =
+            (signLanguageGestures as unknown as Record<string, GestureConfig>)[
+              letter
+            ] || signLanguageGestures.DEFAULT;
+          setCurrentGesture(gesture);
+
           currentIndex = (currentIndex + 1) % letters.length;
         };
 
@@ -76,11 +106,11 @@ const TranslateOutput = ({ inputText }) => {
             <path d="M9.5,6.5C9.5,6.5 9.5,5.5 10.5,5.5C11.5,5.5 11.5,6.5 11.5,6.5V10.5H13.5V4.5C13.5,4.5 13.5,3.5 14.5,3.5C15.5,3.5 15.5,4.5 15.5,4.5V10.5H17.5V6.5C17.5,6.5 17.5,5.5 18.5,5.5C19.5,5.5 19.5,6.5 19.5,6.5V13.5C19.5,13.5 19.5,14.5 18.5,14.5L14.5,14.5C14.5,14.5 13.5,14.5 13,15L9.5,19C9.5,19 9,19.5 8,19.5C7,19.5 6.5,19 6.5,19L3.5,16C3.5,16 3,15.5 3,14.5C3,13.5 3.5,13 3.5,13L9,7.5C9,7.5 9.5,7 9.5,6.5Z" />
           </svg>
         </div>
-        <span className="text-gray-200">Bahasa Isyarat</span>
+        <span className="text-gray-200">Bahasa Isyarat BISINDO</span>
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[13rem] h-0.5 bg-blue-500"></div>
       </div>
 
-      {/* Konten Utama */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 min-h-0">
         {inputText ? (
           <>
@@ -125,13 +155,15 @@ const TranslateOutput = ({ inputText }) => {
                   {currentLetter}
                 </span>
               </p>
-              <p className="text-sm text-gray-500">teks: "{inputText}"</p>
+              <p className="text-sm text-gray-500">Teks: "{inputText}"</p>
               <p className="text-xs text-gray-600 mt-1">
-                {currentGesture.leftHand && currentGesture.rightHand
+                {currentGesture?.leftHand && currentGesture?.rightHand
                   ? "menggunakan kedua tangan"
-                  : currentGesture.leftHand
+                  : currentGesture?.leftHand
                   ? "menggunakan tangan kiri"
-                  : "menggunakan tangan kanan"}
+                  : currentGesture?.rightHand
+                  ? "menggunakan tangan kanan"
+                  : "posisi default"}
               </p>
             </div>
           </>

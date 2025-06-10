@@ -7,17 +7,46 @@ import { Body } from "./Body";
 import { Arm } from "./Arm";
 import { Legs } from "./Legs";
 
-export const Character = ({ currentGesture }) => {
-  const group = useRef();
-  const rightArm = useRef();
-  const rightForearm = useRef();
-  const rightHand = useRef();
-  const rightFingers = useRef([]);
+interface GestureConfig {
+  rotation: [number, number, number];
+  visible: boolean;
+}
 
-  const leftArm = useRef();
-  const leftForearm = useRef();
-  const leftHand = useRef();
-  const leftFingers = useRef([]);
+interface FingerConfig {
+  thumb?: GestureConfig;
+  index?: GestureConfig;
+  middle?: GestureConfig;
+  ring?: GestureConfig;
+  pinky?: GestureConfig;
+}
+
+interface HandGesture {
+  rotation: [number, number, number];
+  fingerConfig?: FingerConfig;
+}
+
+interface CurrentGesture {
+  leftHand?: HandGesture;
+  rightHand?: HandGesture;
+}
+
+interface CharacterProps {
+  currentGesture: CurrentGesture;
+}
+
+type FingerName = keyof FingerConfig;
+
+export const Character: React.FC<CharacterProps> = ({ currentGesture }) => {
+  const group = useRef<THREE.Object3D>(null);
+  const rightArm = useRef<THREE.Object3D>(null);
+  const rightForearm = useRef<THREE.Object3D>(null);
+  const rightHand = useRef<THREE.Object3D>(null);
+  const rightFingers = useRef<(THREE.Object3D | null)[]>([]);
+
+  const leftArm = useRef<THREE.Object3D>(null);
+  const leftForearm = useRef<THREE.Object3D>(null);
+  const leftHand = useRef<THREE.Object3D>(null);
+  const leftFingers = useRef<(THREE.Object3D | null)[]>([]);
 
   useFrame(() => {
     if (!currentGesture) return;
@@ -80,10 +109,18 @@ export const Character = ({ currentGesture }) => {
         rightFingers.current.length > 0 &&
         fingerConfig
       ) {
-        const fingerNames = ["thumb", "index", "middle", "ring", "pinky"];
+        const fingerNames: FingerName[] = [
+          "thumb",
+          "index",
+          "middle",
+          "ring",
+          "pinky",
+        ];
         rightFingers.current.forEach((finger, index) => {
-          if (finger && fingerConfig[fingerNames[index]]) {
-            const config = fingerConfig[fingerNames[index]];
+          const fingerName = fingerNames[index];
+          const config = fingerName ? fingerConfig[fingerName] : undefined;
+
+          if (finger && config) {
             finger.rotation.x = THREE.MathUtils.lerp(
               finger.rotation.x,
               config.rotation[0],
@@ -163,10 +200,18 @@ export const Character = ({ currentGesture }) => {
         leftFingers.current.length > 0 &&
         fingerConfig
       ) {
-        const fingerNames = ["thumb", "index", "middle", "ring", "pinky"];
+        const fingerNames: FingerName[] = [
+          "thumb",
+          "index",
+          "middle",
+          "ring",
+          "pinky",
+        ];
         leftFingers.current.forEach((finger, index) => {
-          if (finger && fingerConfig[fingerNames[index]]) {
-            const config = fingerConfig[fingerNames[index]];
+          const fingerName = fingerNames[index];
+          const config = fingerName ? fingerConfig[fingerName] : undefined;
+
+          if (finger && config) {
             finger.rotation.x = THREE.MathUtils.lerp(
               finger.rotation.x,
               config.rotation[0],

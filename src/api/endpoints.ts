@@ -64,10 +64,38 @@ const postPredictDynamic = async () => {
   }
 };
 
+const postTextToSign = async (text: string) => {
+  try {
+    const response = await axiosInstance.post("/api/text-to-sign", {
+      text: text,
+    });
+
+    console.log("Text to sign response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error posting text to sign:", error);
+    throw error;
+  }
+};
+
+const postUpload = async () => {
+  try {
+    const response = await axiosInstance.post("/api/upload");
+
+    console.log("File upload response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+};
+
 export {
   getLetters,
   getWords,
   getHealthCheck,
   postPredictStatic,
   postPredictDynamic,
+  postTextToSign,
+  postUpload,
 };

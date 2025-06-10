@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import Webcam from "react-webcam";
 
 interface UseWebcamReturn {
-  webcamRef: React.RefObject<Webcam> | null;
+  webcamRef: React.RefObject<Webcam | null>;
   isActive: boolean;
   isRecording: boolean;
   recordingTime: number;

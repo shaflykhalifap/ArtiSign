@@ -31,20 +31,20 @@ const TranslatePage = () => {
     }
   };
 
-  // Loading State
-  if (lettersLoading || wordsLoading) {
-    return <div>Loading....</div>;
-  }
+  // // Loading State
+  // if (lettersLoading || wordsLoading) {
+  //   return <div>Loading....</div>;
+  // }
 
-  // Error State
-  if (lettersError || wordsError) {
-    return (
-      <div className="max-w-4xl mx-auto w-full p-8 text-red-500">
-        <h2>Error loading data</h2>
-        <p>{lettersError || wordsError}</p>
-      </div>
-    );
-  }
+  // // Error State
+  // if (lettersError || wordsError) {
+  //   return (
+  //     <div className="max-w-4xl mx-auto w-full p-8 text-red-500">
+  //       <h2>Error loading data</h2>
+  //       <p>{lettersError || wordsError}</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

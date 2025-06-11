@@ -1,22 +1,21 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Webcam from "react-webcam";
+import { useHandDetector } from "./useHandDetector";
+import { postPredictDynamic } from "../api/endpoints";
 
 interface UseWebcamReturn {
   webcamRef: React.RefObject<Webcam | null>;
   isActive: boolean;
-  isRecording: boolean;
-  recordingTime: number;
-  capturedVideo: string | null;
   error: string | null;
   isProcessing: boolean;
   showPermissionPrompt: boolean;
   hasPermission: boolean;
+  landmarkSequence: number[][];
+  isDetecting: boolean;
+  currentPrediction: string | null;
+  predictionConfidence: number;
   startCamera: () => void;
   stopCamera: () => void;
-  startRecording: () => void;
-  stopRecording: () => void;
-  retakeVideo: () => void;
-  processVideo: (onResult: (text: string) => void) => Promise<void>;
   clearError: () => void;
   setError: (message: string) => void;
   setShowPermissionPrompt: (show: boolean) => void;
@@ -27,45 +26,30 @@ interface UseWebcamReturn {
 
 export const useWebcam = (): UseWebcamReturn => {
   const webcamRef = useRef<Webcam | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const recordedChunks = useRef<Blob[]>([]);
-  const timerRef = useRef<number | null>(null);
+  const detectionIntervalRef = useRef<number | null>(null);
+  const predictionIntervalRef = useRef<number | null>(null);
+  const landmarkBufferRef = useRef<number[][]>([]);
+  const isDetectionRunningRef = useRef(false);
 
   const [isActive, setIsActive] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [capturedVideo, setCapturedVideo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [landmarkSequence, setLandmarkSequence] = useState<number[][]>([]);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [currentPrediction, setCurrentPrediction] = useState<string | null>(
+    null
+  );
+  const [predictionConfidence, setPredictionConfidence] = useState<number>(0);
+
+  const { initializeDetector, detectHands, extractLandmarkSequence } =
+    useHandDetector();
 
   // Check permission on mount
   useEffect(() => {
     checkCameraPermission();
   }, []);
-
-  // Recording timer effect
-  useEffect(() => {
-    if (isRecording) {
-      setRecordingTime(0);
-      timerRef.current = window.setInterval(() => {
-        setRecordingTime((prevTime) => prevTime + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [isRecording]);
 
   const checkCameraPermission = useCallback(async () => {
     try {
@@ -99,7 +83,6 @@ export const useWebcam = (): UseWebcamReturn => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: true, // Include audio for video recording
       });
       stream.getTracks().forEach((track) => track.stop());
       setHasPermission(true);
@@ -110,9 +93,7 @@ export const useWebcam = (): UseWebcamReturn => {
       setHasPermission(false);
 
       if (err instanceof DOMException && err.name === "NotAllowedError") {
-        setError(
-          "izin kamera dan mikrofon ditolak. harap berikan izin dan coba lagi."
-        );
+        setError("izin kamera ditolak. harap berikan izin dan coba lagi.");
         throw err;
       }
       return false;
@@ -125,6 +106,106 @@ export const useWebcam = (): UseWebcamReturn => {
       setShowPermissionPrompt(true);
     }
   }, [hasPermission]);
+
+  const performDetection = useCallback(async () => {
+    if (!webcamRef.current?.video || isDetectionRunningRef.current) {
+      return;
+    }
+
+    isDetectionRunningRef.current = true;
+
+    try {
+      const result = await detectHands(
+        webcamRef.current.video as HTMLVideoElement
+      );
+
+      if (result && result.landmarks.length > 0) {
+        const sequence = extractLandmarkSequence(result.landmarks);
+
+        // Add to buffer
+        landmarkBufferRef.current.push(...sequence);
+        setLandmarkSequence((prev) => [...prev, ...sequence]);
+
+        // Keep buffer size manageable (last 30 frames)
+        if (landmarkBufferRef.current.length > 30) {
+          landmarkBufferRef.current = landmarkBufferRef.current.slice(-30);
+          setLandmarkSequence((prev) => prev.slice(-30));
+        }
+      }
+    } catch (error) {
+      console.error("Hand detection error:", error);
+      // Don't set error state for individual detection failures
+    } finally {
+      isDetectionRunningRef.current = false;
+    }
+  }, [detectHands, extractLandmarkSequence]);
+
+  const startRealTimeDetection = useCallback(async () => {
+    console.log("Starting real-time detection...");
+    setIsDetecting(true);
+    landmarkBufferRef.current = [];
+    setLandmarkSequence([]);
+
+    // Detect hands every 200ms (reduced frequency to avoid overload)
+    detectionIntervalRef.current = window.setInterval(performDetection, 200);
+
+    // Make predictions every 3 seconds if we have enough data
+    predictionIntervalRef.current = window.setInterval(async () => {
+      if (landmarkBufferRef.current.length >= 5) {
+        // Reduced minimum frames
+        try {
+          setIsProcessing(true);
+          console.log(
+            "Making prediction with",
+            landmarkBufferRef.current.length,
+            "frames"
+          );
+
+          const response = await postPredictDynamic(
+            landmarkBufferRef.current,
+            "transformer"
+          );
+
+          if (response.success && response.result) {
+            setCurrentPrediction(response.result.class);
+            setPredictionConfidence(response.result.confidence);
+            console.log(
+              "Prediction:",
+              response.result.class,
+              "Confidence:",
+              response.result.confidence
+            );
+          }
+        } catch (error) {
+          console.error("Prediction error:", error);
+          // Don't set error state for prediction failures
+        } finally {
+          setIsProcessing(false);
+        }
+      }
+    }, 3000); // Predict every 3 seconds
+  }, [performDetection]);
+
+  const stopRealTimeDetection = useCallback(() => {
+    console.log("Stopping real-time detection...");
+
+    if (detectionIntervalRef.current) {
+      clearInterval(detectionIntervalRef.current);
+      detectionIntervalRef.current = null;
+    }
+
+    if (predictionIntervalRef.current) {
+      clearInterval(predictionIntervalRef.current);
+      predictionIntervalRef.current = null;
+    }
+
+    isDetectionRunningRef.current = false;
+    setIsDetecting(false);
+    setCurrentPrediction(null);
+    setPredictionConfidence(0);
+    landmarkBufferRef.current = [];
+    setLandmarkSequence([]);
+  }, []);
 
   const startCamera = useCallback(async () => {
     console.log("Starting camera...");
@@ -140,131 +221,41 @@ export const useWebcam = (): UseWebcamReturn => {
       if (!granted) return;
     }
 
-    setIsActive(true);
-    setCapturedVideo(null);
-  }, [hasPermission, requestCameraPermission]);
+    try {
+      setIsActive(true);
+
+      // Initialize detector without throwing errors
+      try {
+        await initializeDetector();
+      } catch (detectorError) {
+        console.warn(
+          "Detector initialization failed, but camera will still work:",
+          detectorError
+        );
+        // Don't prevent camera from starting if detector fails
+      }
+
+      // Start real-time detection after a delay to ensure camera is ready
+      setTimeout(() => {
+        startRealTimeDetection();
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to start camera:", error);
+      setError("Gagal memulai kamera");
+      setIsActive(false);
+    }
+  }, [
+    hasPermission,
+    requestCameraPermission,
+    initializeDetector,
+    startRealTimeDetection,
+  ]);
 
   const stopCamera = useCallback(() => {
     console.log("Stopping camera...");
     setIsActive(false);
-
-    // Stop recording if active
-    if (isRecording) {
-      stopRecording();
-    }
-  }, [isRecording]);
-
-  const startRecording = useCallback(async () => {
-    console.log("Starting video recording...");
-
-    if (!webcamRef.current?.stream) {
-      setError("kamera tidak tersedia untuk merekam");
-      return;
-    }
-
-    try {
-      const options = {
-        mimeType: "video/webm;codecs=vp9,opus", // VP9 video + Opus audio
-      };
-
-      // Fallback to default if VP9 not supported
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options.mimeType = "video/webm";
-      }
-
-      const mediaRecorder = new MediaRecorder(
-        webcamRef.current.stream,
-        options
-      );
-      mediaRecorderRef.current = mediaRecorder;
-      recordedChunks.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          recordedChunks.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(recordedChunks.current, {
-          type: options.mimeType,
-        });
-
-        const videoURL = URL.createObjectURL(blob);
-        setCapturedVideo(videoURL);
-        setIsActive(false); // Stop camera preview
-        recordedChunks.current = [];
-      };
-
-      mediaRecorder.onerror = (event) => {
-        console.error("MediaRecorder error:", event);
-        setError("terjadi kesalahan saat merekam video");
-        setIsRecording(false);
-      };
-
-      mediaRecorder.start(1000); // Collect data every second
-      setIsRecording(true);
-      setError(null);
-    } catch (err) {
-      console.error("Error starting recording:", err);
-      setError("gagal memulai perekaman video");
-    }
-  }, []);
-
-  const stopRecording = useCallback(() => {
-    if (
-      mediaRecorderRef.current &&
-      mediaRecorderRef.current.state === "recording"
-    ) {
-      mediaRecorderRef.current.stop();
-    }
-
-    setIsRecording(false);
-  }, []);
-
-  const retakeVideo = useCallback(() => {
-    console.log("Retaking video...");
-
-    if (capturedVideo) {
-      URL.revokeObjectURL(capturedVideo);
-    }
-
-    setCapturedVideo(null);
-    setError(null);
-    startCamera();
-  }, [capturedVideo, startCamera]);
-
-  const processVideo = useCallback(
-    async (onResult: (text: string) => void) => {
-      if (!capturedVideo) {
-        setError("tidak ada video untuk diproses");
-        return;
-      }
-
-      setIsProcessing(true);
-
-      try {
-        console.log("Processing video...");
-
-        // Simulate video processing (OCR/Translation)
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-
-        const mockResult =
-          "hasil penerjemahan dari video akan muncul di sini (simulasi video recording)";
-        onResult(mockResult);
-
-        // Clean up
-        URL.revokeObjectURL(capturedVideo);
-        setCapturedVideo(null);
-        setError(null);
-      } catch (error) {
-        setError("gagal memproses video");
-      } finally {
-        setIsProcessing(false);
-      }
-    },
-    [capturedVideo]
-  );
+    stopRealTimeDetection();
+  }, [stopRealTimeDetection]);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -277,62 +268,45 @@ export const useWebcam = (): UseWebcamReturn => {
   // Cleanup effect
   useEffect(() => {
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+      if (detectionIntervalRef.current) {
+        clearInterval(detectionIntervalRef.current);
       }
-      if (capturedVideo) {
-        URL.revokeObjectURL(capturedVideo);
+      if (predictionIntervalRef.current) {
+        clearInterval(predictionIntervalRef.current);
       }
+      isDetectionRunningRef.current = false;
     };
-  }, [capturedVideo]);
+  }, []);
 
   const resetCameraState = useCallback(() => {
-    // Stop any active recording
-    if (isRecording && mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-    }
-
-    // Clear timer
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-
-    // Clean up video URL
-    if (capturedVideo) {
-      URL.revokeObjectURL(capturedVideo);
-    }
+    stopRealTimeDetection();
 
     // Reset all states
     setIsActive(false);
-    setIsRecording(false);
-    setRecordingTime(0);
-    setCapturedVideo(null);
     setError(null);
     setIsProcessing(false);
     setShowPermissionPrompt(false);
+    setLandmarkSequence([]);
+    setCurrentPrediction(null);
+    setPredictionConfidence(0);
 
-    // Clear recorded chunks
-    recordedChunks.current = [];
-    mediaRecorderRef.current = null;
-  }, [isRecording, capturedVideo]);
+    landmarkBufferRef.current = [];
+    isDetectionRunningRef.current = false;
+  }, [stopRealTimeDetection]);
 
   return {
     webcamRef,
     isActive,
-    isRecording,
-    recordingTime,
-    capturedVideo,
     error,
     isProcessing,
     showPermissionPrompt,
     hasPermission: hasPermission === true,
+    landmarkSequence,
+    isDetecting,
+    currentPrediction,
+    predictionConfidence,
     startCamera,
     stopCamera,
-    startRecording,
-    stopRecording,
-    retakeVideo,
-    processVideo,
     clearError,
     setError: setErrorMessage,
     setShowPermissionPrompt,

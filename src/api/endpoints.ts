@@ -52,9 +52,15 @@ const postPredictStatic = async () => {
   }
 };
 
-const postPredictDynamic = async () => {
+const postPredictDynamic = async (
+  landmarkSequence: number[][],
+  modelChoice: "transformer" | "lstm" = "transformer"
+) => {
   try {
-    const response = await axiosInstance.post("/api/predict-dynamic-sign");
+    const response = await axiosInstance.post("/api/predict-dynamic-sign", {
+      landmark_sequence: landmarkSequence,
+      model_choice: modelChoice,
+    });
 
     console.log("Dynamic prediction response:", response.data);
     return response.data;

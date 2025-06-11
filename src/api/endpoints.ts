@@ -40,9 +40,11 @@ const getWords = async () => {
 };
 
 //| POST Methods
-const postPredictStatic = async () => {
+const postPredictStatic = async (landmarks: number[]) => {
   try {
-    const response = await axiosInstance.post("/api/predict-static-sign");
+    const response = await axiosInstance.post("/api/predict-static-sign", {
+      landmarks: landmarks,
+    });
 
     console.log("Prediction response:", response.data);
     return response.data;

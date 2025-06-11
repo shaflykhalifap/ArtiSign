@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Webcam from "react-webcam";
 import { useHandDetector } from "./useHandDetector";
-import { postPredictDynamic } from "../api/endpoints";
+import { postPredictDynamic, postPredictStatic } from "../api/endpoints";
 
 interface UseWebcamReturn {
   webcamRef: React.RefObject<Webcam | null>;
@@ -14,6 +14,8 @@ interface UseWebcamReturn {
   isDetecting: boolean;
   currentPrediction: string | null;
   predictionConfidence: number;
+  staticPrediction: string | null;
+  staticConfidence: number;
   startCamera: () => void;
   stopCamera: () => void;
   clearError: () => void;
@@ -27,7 +29,8 @@ interface UseWebcamReturn {
 export const useWebcam = (): UseWebcamReturn => {
   const webcamRef = useRef<Webcam | null>(null);
   const detectionIntervalRef = useRef<number | null>(null);
-  const predictionIntervalRef = useRef<number | null>(null);
+  const staticPredictionIntervalRef = useRef<number | null>(null);
+  const dynamicPredictionIntervalRef = useRef<number | null>(null);
   const landmarkBufferRef = useRef<number[][]>([]);
   const isDetectionRunningRef = useRef(false);
 
@@ -42,9 +45,15 @@ export const useWebcam = (): UseWebcamReturn => {
     null
   );
   const [predictionConfidence, setPredictionConfidence] = useState<number>(0);
+  const [staticPrediction, setStaticPrediction] = useState<string | null>(null);
+  const [staticConfidence, setStaticConfidence] = useState<number>(0);
 
-  const { initializeDetector, detectHands, extractLandmarkSequence } =
-    useHandDetector();
+  const {
+    initializeDetector,
+    detectHands,
+    extractLandmarkSequence,
+    extractSingleLandmark,
+  } = useHandDetector();
 
   // Check permission on mount
   useEffect(() => {
@@ -122,7 +131,7 @@ export const useWebcam = (): UseWebcamReturn => {
       if (result && result.landmarks.length > 0) {
         const sequence = extractLandmarkSequence(result.landmarks);
 
-        // Add to buffer
+        // Add to buffer for dynamic prediction
         landmarkBufferRef.current.push(...sequence);
         setLandmarkSequence((prev) => [...prev, ...sequence]);
 
@@ -134,11 +143,75 @@ export const useWebcam = (): UseWebcamReturn => {
       }
     } catch (error) {
       console.error("Hand detection error:", error);
-      // Don't set error state for individual detection failures
     } finally {
       isDetectionRunningRef.current = false;
     }
   }, [detectHands, extractLandmarkSequence]);
+
+  const performStaticPrediction = useCallback(async () => {
+    if (!webcamRef.current?.video) return;
+
+    try {
+      const result = await detectHands(
+        webcamRef.current.video as HTMLVideoElement
+      );
+
+      if (result && result.landmarks.length > 0) {
+        // Use the first hand for static prediction
+        const singleLandmark = extractSingleLandmark(result.landmarks[0]);
+
+        console.log("Making static prediction with landmark data");
+
+        const response = await postPredictStatic(singleLandmark);
+
+        if (response.success && response.result) {
+          setStaticPrediction(response.result.class);
+          setStaticConfidence(response.result.confidence);
+          console.log(
+            "Static Prediction:",
+            response.result.class,
+            "Confidence:",
+            response.result.confidence
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Static prediction error:", error);
+    }
+  }, [detectHands, extractSingleLandmark]);
+
+  const performDynamicPrediction = useCallback(async () => {
+    if (landmarkBufferRef.current.length >= 5) {
+      try {
+        setIsProcessing(true);
+        console.log(
+          "Making dynamic prediction with",
+          landmarkBufferRef.current.length,
+          "frames"
+        );
+
+        const response = await postPredictDynamic(
+          landmarkBufferRef.current,
+          "transformer"
+        );
+
+        if (response.success && response.result) {
+          setCurrentPrediction(response.result.class);
+          setPredictionConfidence(response.result.confidence);
+          console.log(
+            "Dynamic Prediction:",
+            response.result.class,
+            "Confidence:",
+            response.result.confidence
+          );
+        }
+      } catch (error) {
+        console.error("Dynamic prediction error:", error);
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  }, []);
 
   const startRealTimeDetection = useCallback(async () => {
     console.log("Starting real-time detection...");
@@ -146,45 +219,21 @@ export const useWebcam = (): UseWebcamReturn => {
     landmarkBufferRef.current = [];
     setLandmarkSequence([]);
 
-    // Detect hands every 200ms (reduced frequency to avoid overload)
+    // Detect hands every 200ms
     detectionIntervalRef.current = window.setInterval(performDetection, 200);
 
-    // Make predictions every 3 seconds if we have enough data
-    predictionIntervalRef.current = window.setInterval(async () => {
-      if (landmarkBufferRef.current.length >= 5) {
-        // Reduced minimum frames
-        try {
-          setIsProcessing(true);
-          console.log(
-            "Making prediction with",
-            landmarkBufferRef.current.length,
-            "frames"
-          );
+    // Static predictions every 1 second (for letters)
+    staticPredictionIntervalRef.current = window.setInterval(
+      performStaticPrediction,
+      1000
+    );
 
-          const response = await postPredictDynamic(
-            landmarkBufferRef.current,
-            "transformer"
-          );
-
-          if (response.success && response.result) {
-            setCurrentPrediction(response.result.class);
-            setPredictionConfidence(response.result.confidence);
-            console.log(
-              "Prediction:",
-              response.result.class,
-              "Confidence:",
-              response.result.confidence
-            );
-          }
-        } catch (error) {
-          console.error("Prediction error:", error);
-          // Don't set error state for prediction failures
-        } finally {
-          setIsProcessing(false);
-        }
-      }
-    }, 3000); // Predict every 3 seconds
-  }, [performDetection]);
+    // Dynamic predictions every 3 seconds (for words/sentences)
+    dynamicPredictionIntervalRef.current = window.setInterval(
+      performDynamicPrediction,
+      3000
+    );
+  }, [performDetection, performStaticPrediction, performDynamicPrediction]);
 
   const stopRealTimeDetection = useCallback(() => {
     console.log("Stopping real-time detection...");
@@ -194,15 +243,22 @@ export const useWebcam = (): UseWebcamReturn => {
       detectionIntervalRef.current = null;
     }
 
-    if (predictionIntervalRef.current) {
-      clearInterval(predictionIntervalRef.current);
-      predictionIntervalRef.current = null;
+    if (staticPredictionIntervalRef.current) {
+      clearInterval(staticPredictionIntervalRef.current);
+      staticPredictionIntervalRef.current = null;
+    }
+
+    if (dynamicPredictionIntervalRef.current) {
+      clearInterval(dynamicPredictionIntervalRef.current);
+      dynamicPredictionIntervalRef.current = null;
     }
 
     isDetectionRunningRef.current = false;
     setIsDetecting(false);
     setCurrentPrediction(null);
     setPredictionConfidence(0);
+    setStaticPrediction(null);
+    setStaticConfidence(0);
     landmarkBufferRef.current = [];
     setLandmarkSequence([]);
   }, []);
@@ -232,7 +288,6 @@ export const useWebcam = (): UseWebcamReturn => {
           "Detector initialization failed, but camera will still work:",
           detectorError
         );
-        // Don't prevent camera from starting if detector fails
       }
 
       // Start real-time detection after a delay to ensure camera is ready
@@ -271,8 +326,11 @@ export const useWebcam = (): UseWebcamReturn => {
       if (detectionIntervalRef.current) {
         clearInterval(detectionIntervalRef.current);
       }
-      if (predictionIntervalRef.current) {
-        clearInterval(predictionIntervalRef.current);
+      if (staticPredictionIntervalRef.current) {
+        clearInterval(staticPredictionIntervalRef.current);
+      }
+      if (dynamicPredictionIntervalRef.current) {
+        clearInterval(dynamicPredictionIntervalRef.current);
       }
       isDetectionRunningRef.current = false;
     };
@@ -289,6 +347,8 @@ export const useWebcam = (): UseWebcamReturn => {
     setLandmarkSequence([]);
     setCurrentPrediction(null);
     setPredictionConfidence(0);
+    setStaticPrediction(null);
+    setStaticConfidence(0);
 
     landmarkBufferRef.current = [];
     isDetectionRunningRef.current = false;
@@ -305,6 +365,8 @@ export const useWebcam = (): UseWebcamReturn => {
     isDetecting,
     currentPrediction,
     predictionConfidence,
+    staticPrediction,
+    staticConfidence,
     startCamera,
     stopCamera,
     clearError,

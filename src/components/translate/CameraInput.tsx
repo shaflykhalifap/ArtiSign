@@ -1,5 +1,5 @@
 import React from "react";
-import { Loader2, Video, VideoOff, Hand } from "lucide-react";
+import { Loader2, Video, VideoOff, Hand, Type, FileText } from "lucide-react";
 import Webcam from "react-webcam";
 import { useWebcam } from "../../hooks/useWebcam";
 import PermissionPrompt from "../common/PermissionPrompt";
@@ -23,6 +23,8 @@ const CameraInput: React.FC<CameraInputProps> = ({
     isDetecting,
     currentPrediction,
     predictionConfidence,
+    staticPrediction,
+    staticConfidence,
     startCamera,
     stopCamera,
     clearError,
@@ -113,7 +115,16 @@ const CameraInput: React.FC<CameraInputProps> = ({
     }
   };
 
-  const handleUsePrediction = () => {
+  const handleUseStaticPrediction = () => {
+    if (staticPrediction) {
+      const result = `${staticPrediction} (${Math.round(
+        staticConfidence * 100
+      )}%)`;
+      setInputText(result);
+    }
+  };
+
+  const handleUseDynamicPrediction = () => {
     if (currentPrediction) {
       const result = `${currentPrediction} (${Math.round(
         predictionConfidence * 100
@@ -151,9 +162,33 @@ const CameraInput: React.FC<CameraInputProps> = ({
           </div>
         )}
 
-        {/* Real-time Prediction Display */}
+        {/* Static Prediction Display (Letters) */}
+        {staticPrediction && isActive && (
+          <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 p-4 rounded-md max-w-md w-full text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Type size={16} />
+              <span className="text-xs">HURUF</span>
+            </div>
+            <div className="text-lg font-semibold mb-2">{staticPrediction}</div>
+            <div className="text-sm text-yellow-300 mb-3">
+              Confidence: {Math.round(staticConfidence * 100)}%
+            </div>
+            <button
+              onClick={handleUseStaticPrediction}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm transition-colors"
+            >
+              Gunakan Huruf
+            </button>
+          </div>
+        )}
+
+        {/* Dynamic Prediction Display (Words/Sentences) */}
         {currentPrediction && isActive && (
           <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-md max-w-md w-full text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <FileText size={16} />
+              <span className="text-xs">KATA/KALIMAT</span>
+            </div>
             <div className="text-lg font-semibold mb-2">
               {currentPrediction}
             </div>
@@ -161,10 +196,10 @@ const CameraInput: React.FC<CameraInputProps> = ({
               Confidence: {Math.round(predictionConfidence * 100)}%
             </div>
             <button
-              onClick={handleUsePrediction}
+              onClick={handleUseDynamicPrediction}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm transition-colors"
             >
-              Gunakan Prediksi
+              Gunakan Kata
             </button>
           </div>
         )}
@@ -220,17 +255,21 @@ const CameraInput: React.FC<CameraInputProps> = ({
                 </div>
               )}
 
-              {/* Current prediction overlay */}
-              {currentPrediction && (
-                <div className="absolute bottom-2 left-2 right-2">
-                  <div className="bg-black/80 text-white p-2 rounded text-center">
-                    <div className="font-semibold">{currentPrediction}</div>
-                    <div className="text-xs text-gray-300">
-                      {Math.round(predictionConfidence * 100)}%
-                    </div>
+              {/* Current predictions overlay */}
+              <div className="absolute bottom-2 left-2 right-2 space-y-1">
+                {staticPrediction && (
+                  <div className="bg-yellow-600/80 text-white px-2 py-1 rounded text-center text-xs">
+                    Huruf: {staticPrediction} (
+                    {Math.round(staticConfidence * 100)}%)
                   </div>
-                </div>
-              )}
+                )}
+                {currentPrediction && (
+                  <div className="bg-green-600/80 text-white px-2 py-1 rounded text-center text-xs">
+                    Kata: {currentPrediction} (
+                    {Math.round(predictionConfidence * 100)}%)
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Camera Controls */}
@@ -250,7 +289,8 @@ const CameraInput: React.FC<CameraInputProps> = ({
                 Posisikan tangan Anda di depan kamera untuk deteksi real-time
               </p>
               <p className="text-xs text-gray-500">
-                Sistem akan mendeteksi bahasa isyarat secara otomatis
+                Sistem akan mendeteksi huruf (1 detik) dan kata (3 detik) secara
+                otomatis
               </p>
             </div>
           </div>

@@ -115,9 +115,21 @@ export const useHandDetector = () => {
     []
   );
 
+  const extractSingleLandmark = useCallback(
+    (landmarks: HandLandmark[]): number[] => {
+      return landmarks.flatMap((landmark) => [
+        landmark.x,
+        landmark.y,
+        landmark.z,
+      ]);
+    },
+    []
+  );
+
   return {
     initializeDetector,
     detectHands,
     extractLandmarkSequence,
+    extractSingleLandmark,
   };
 };

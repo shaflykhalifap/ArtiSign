@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
   entry: "./src/main.tsx",
@@ -60,6 +61,7 @@ module.exports = {
 
   //* ------- Plugins ------- */
   plugins: [
+    new CleanWebpackPlugin(),
     new Dotenv(),
 
     new HtmlWebpackPlugin({
@@ -76,7 +78,6 @@ module.exports = {
       patterns: [
         { from: "public/assets", to: "assets" },
         { from: "src/assets", to: "assets" },
-        { from: "public/_redirects", to: "_redirects" },
       ],
     }),
   ],

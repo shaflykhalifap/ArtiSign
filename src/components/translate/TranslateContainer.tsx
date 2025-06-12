@@ -2,6 +2,7 @@ import TranslateInput from "./TranslateInput";
 import TranslateOutput from "./TranslateOutput";
 import AudioInput from "./AudioInput";
 import SignLanguageContainer from "./SignLanguageContainer";
+import { Letter, Word } from "../../types/textTranslate";
 
 interface TranslateContainerProps {
   inputText: string;
@@ -9,6 +10,8 @@ interface TranslateContainerProps {
   handleTextChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   activeTab: "text" | "audio" | "camera";
   setActiveTab?: (tab: "text" | "audio" | "camera") => void;
+  availableLetters: Letter[];
+  availableWords: Word[];
 }
 
 const TranslateContainer = ({

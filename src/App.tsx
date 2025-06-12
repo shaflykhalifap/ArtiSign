@@ -4,38 +4,47 @@ import { Routes, Route } from "react-router-dom";
 // --- Import Components ---
 import HomePage from "./pages/HomePage";
 import TranslatePage from "./pages/TranslatePage";
-import ChatbotPage from "./pages/ChatbotPage";
+// import ChatbotPage from "./pages/ChatbotPage";
 import ArticlePage from "./pages/ArticlePage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import AboutPage from "./pages/AboutPage";
 import Sidebar from "./components/layout/Sidebar";
-import AboutActive from "./components/about/AboutActive";
-import TermsActive from "./components/about/TermsActive";
-import PrivacyActive from "./components/about/PrivacyActive";
-import CommunityActive from "./components/about/CommunityActive";
 
 const App = () => {
   return (
-    <div className="flex">
-      <div className="fixed top-0 left-0 h-full z-10">
-        <Sidebar />
-      </div>
+    <div
+      className="
+      /* Mobile/Tablet: Full width layout dengan bottom navigation */
+      min-h-screen bg-[#1a1a1a] pb-20
+      /* Desktop: Flex layout dengan sidebar */
+      lg:flex lg:pb-0
+    "
+    >
+      {/* Sidebar - Responsive */}
+      <Sidebar />
 
-      <div className="flex-1 ml-[180px] flex flex-col min-h-screen">
+      {/* Main Content Area */}
+      <main
+        className="
+        /* Mobile/Tablet: Full width, konten terpusat */
+        w-full min-h-screen flex flex-col
+        /* Desktop: Flex-1 setelah sidebar (tidak ada margin left) */
+        lg:ml-44 lg:pb-0
+      "
+      >
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/translate" element={<TranslatePage />} />
-          <Route path="/chatbot" element={<ChatbotPage />} />
+          {/* <Route path="/chatbot" element={<ChatbotPage />} /> */}
           <Route path="/article" element={<ArticlePage />} />
           <Route path="/article/:id" element={<ArticleDetailPage />} />
-          <Route path="/about" element={<AboutPage />}>
-            <Route index element={<AboutActive />} />
-            <Route path="terms" element={<TermsActive />} />
-            <Route path="privacy" element={<PrivacyActive />} />
-            <Route path="community" element={<CommunityActive />} />
-          </Route>
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/about/general" element={<AboutPage />} />
+          <Route path="/about/community" element={<AboutPage />} />
+          <Route path="/about/terms" element={<AboutPage />} />
+          <Route path="/about/privacy" element={<AboutPage />} />
         </Routes>
-      </div>
+      </main>
     </div>
   );
 };

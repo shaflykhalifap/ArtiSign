@@ -5,7 +5,7 @@ import ChatHistory from "../components/chatbot/ChatHistory";
 
 const ChatbotPage: React.FC = () => {
   const handleSendMessage = (message: string) => {
-    console.log("Message sent:", message);
+    alert(`Message sent: ${message}`);
   };
 
   return (

@@ -14,47 +14,90 @@ interface DetectionResult {
 export const useHandDetector = () => {
   const detectorRef = useRef<any>(null);
   const isInitializedRef = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pendingResolveRef = useRef<
+    ((result: DetectionResult | null) => void) | null
+  >(null);
 
   const initializeDetector = useCallback(async () => {
     if (isInitializedRef.current) return;
 
     try {
-      // Import TensorFlow.js modules
-      const tf = await import("@tensorflow/tfjs");
-      const handPoseDetection = await import(
-        "@tensorflow-models/hand-pose-detection"
-      );
+      // Import MediaPipe hands
+      const { Hands } = await import("@mediapipe/hands");
 
-      // Ensure TensorFlow.js is ready
-      await tf.ready();
+      const hands = new Hands({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        },
+      });
 
-      const model = handPoseDetection.SupportedModels.MediaPipeHands;
-      const detectorConfig = {
-        runtime: "tfjs" as const,
-        modelType: "full" as const,
-        maxHands: 2,
-        detectionConfidence: 0.7,
-        trackingConfidence: 0.5,
-      };
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.7,
+        minTrackingConfidence: 0.5,
+      });
 
-      const detector = await handPoseDetection.createDetector(
-        model,
-        detectorConfig
-      );
+      // Set up the results callback
+      hands.onResults((results: any) => {
+        if (pendingResolveRef.current) {
+          const resolve = pendingResolveRef.current;
+          pendingResolveRef.current = null;
 
-      detectorRef.current = detector;
+          if (
+            results.multiHandLandmarks &&
+            results.multiHandLandmarks.length > 0
+          ) {
+            const landmarks = results.multiHandLandmarks.map(
+              (handLandmarks: any) => {
+                return handLandmarks.map((landmark: any) => ({
+                  x: landmark.x, // Already normalized 0-1
+                  y: landmark.y, // Already normalized 0-1
+                  z: landmark.z || 0,
+                }));
+              }
+            );
+
+            const confidence = results.multiHandedness
+              ? results.multiHandedness.reduce(
+                  (sum: number, hand: any) => sum + (hand.score || 0.5),
+                  0
+                ) / results.multiHandedness.length
+              : 0.5;
+
+            resolve({
+              landmarks,
+              confidence,
+            });
+          } else {
+            resolve(null);
+          }
+        }
+      });
+
+      // Create a canvas for processing
+      const canvas = document.createElement("canvas");
+      canvas.width = 640;
+      canvas.height = 480;
+      canvasRef.current = canvas;
+
+      detectorRef.current = hands;
       isInitializedRef.current = true;
     } catch (error) {
-      console.error("Failed to initialize hand detector:", error);
-
-      // Fallback: try to continue without throwing error to prevent app crash
+      console.error("Failed to initialize MediaPipe hand detector:", error);
       isInitializedRef.current = false;
     }
   }, []);
 
   const detectHands = useCallback(
     async (videoElement: HTMLVideoElement): Promise<DetectionResult | null> => {
-      if (!detectorRef.current || !videoElement || !isInitializedRef.current) {
+      if (
+        !detectorRef.current ||
+        !videoElement ||
+        !isInitializedRef.current ||
+        !canvasRef.current
+      ) {
         return null;
       }
 
@@ -63,48 +106,77 @@ export const useHandDetector = () => {
         return null;
       }
 
-      try {
-        const hands = await detectorRef.current.estimateHands(videoElement);
-
-        if (hands && hands.length > 0) {
-          const landmarks = hands.map((hand: any) => {
-            return hand.keypoints.map((keypoint: any) => ({
-              x: keypoint.x / videoElement.videoWidth, // Normalize to 0-1
-              y: keypoint.y / videoElement.videoHeight, // Normalize to 0-1
-              z: keypoint.z || 0,
-            }));
-          });
-
-          const confidence =
-            hands.reduce(
-              (sum: number, hand: any) => sum + (hand.score || 0.5),
-              0
-            ) / hands.length;
-
-          return {
-            landmarks,
-            confidence,
-          };
-        }
-
-        return null;
-      } catch (error) {
-        console.error("Hand detection error:", error);
+      // Avoid overlapping detections
+      if (pendingResolveRef.current) {
         return null;
       }
+
+      return new Promise((resolve) => {
+        pendingResolveRef.current = resolve;
+
+        // Set a timeout to prevent hanging
+        const timeout = setTimeout(() => {
+          if (pendingResolveRef.current === resolve) {
+            pendingResolveRef.current = null;
+            resolve(null);
+          }
+        }, 1000); // 1 second timeout
+
+        try {
+          const hands = detectorRef.current;
+          const canvas = canvasRef.current!;
+          const ctx = canvas.getContext("2d")!;
+
+          // Draw video frame to canvas
+          canvas.width = videoElement.videoWidth || 640;
+          canvas.height = videoElement.videoHeight || 480;
+          ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+          // Send the canvas to MediaPipe
+          hands
+            .send({ image: canvas })
+            .then(() => {
+              clearTimeout(timeout);
+            })
+            .catch((error: any) => {
+              console.error("MediaPipe send error:", error);
+              clearTimeout(timeout);
+              if (pendingResolveRef.current === resolve) {
+                pendingResolveRef.current = null;
+                resolve(null);
+              }
+            });
+        } catch (error) {
+          console.error("Detection error:", error);
+          clearTimeout(timeout);
+          if (pendingResolveRef.current === resolve) {
+            pendingResolveRef.current = null;
+            resolve(null);
+          }
+        }
+      });
     },
     []
   );
 
   const extractLandmarkSequence = useCallback(
     (landmarks: HandLandmark[][]): number[][] => {
-      return landmarks.map((handLandmarks) =>
-        handLandmarks.flatMap((landmark) => [
+      const sequences = landmarks.map((handLandmarks) => {
+        // MediaPipe hands should have 21 landmarks
+        if (handLandmarks.length !== 21) {
+          console.warn(`Expected 21 landmarks, got ${handLandmarks.length}`);
+        }
+
+        const flatSequence = handLandmarks.flatMap((landmark) => [
           landmark.x,
           landmark.y,
           landmark.z,
-        ])
-      );
+        ]);
+
+        return flatSequence;
+      });
+
+      return sequences;
     },
     []
   );

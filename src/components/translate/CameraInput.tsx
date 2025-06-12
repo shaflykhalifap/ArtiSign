@@ -1,16 +1,18 @@
 import React from "react";
-import { Loader2, Video, VideoOff, Hand, Type, FileText } from "lucide-react";
+import { Loader2, Video, VideoOff, Hand } from "lucide-react";
 import Webcam from "react-webcam";
 import { useWebcam } from "../../hooks/useWebcam";
 import PermissionPrompt from "../common/PermissionPrompt";
 
 interface CameraInputProps {
-  setInputText: (text: string) => void;
+  onStaticPrediction: (prediction: string, confidence: number) => void;
+  onDynamicPrediction: (prediction: string, confidence: number) => void;
   setActiveTab?: (tab: "text" | "audio" | "camera") => void;
 }
 
 const CameraInput: React.FC<CameraInputProps> = ({
-  setInputText,
+  onStaticPrediction,
+  onDynamicPrediction,
   setActiveTab,
 }) => {
   const {
@@ -41,6 +43,19 @@ const CameraInput: React.FC<CameraInputProps> = ({
     height: { ideal: 720 },
     facingMode: "user",
   };
+
+  // Auto-send predictions to output (without filtering)
+  React.useEffect(() => {
+    if (currentPrediction) {
+      onDynamicPrediction(currentPrediction, predictionConfidence);
+    }
+  }, [currentPrediction, predictionConfidence, onDynamicPrediction]);
+
+  React.useEffect(() => {
+    if (staticPrediction) {
+      onStaticPrediction(staticPrediction, staticConfidence);
+    }
+  }, [staticPrediction, staticConfidence, onStaticPrediction]);
 
   // Reset permission state when component mounts and cleanup on unmount
   React.useEffect(() => {
@@ -109,26 +124,9 @@ const CameraInput: React.FC<CameraInputProps> = ({
 
   const handleWebcamUserMedia = (stream: MediaStream) => {
     // Clear any previous errors when camera starts successfully
+    console.log("Webcam started successfully: ", stream);
     if (error) {
       clearError();
-    }
-  };
-
-  const handleUseStaticPrediction = () => {
-    if (staticPrediction) {
-      const result = `${staticPrediction} (${Math.round(
-        staticConfidence * 100
-      )}%)`;
-      setInputText(result);
-    }
-  };
-
-  const handleUseDynamicPrediction = () => {
-    if (currentPrediction) {
-      const result = `${currentPrediction} (${Math.round(
-        predictionConfidence * 100
-      )}%)`;
-      setInputText(result);
     }
   };
 
@@ -153,53 +151,33 @@ const CameraInput: React.FC<CameraInputProps> = ({
           <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-md text-sm max-w-md w-full text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Hand size={16} className="animate-pulse" />
-              <span>Mendeteksi gerakan tangan...</span>
+              <span>mendeteksi gerakan tangan...</span>
             </div>
-            <div className="text-xs text-blue-300">
-              {landmarkSequence.length} frame terdeteksi
+            <div className="text-xs text-blue-300 space-y-1">
+              <div>buffer: {landmarkSequence.length} frame</div>
+              <div className="text-xs">
+                static:{" "}
+                {staticPrediction
+                  ? `${staticPrediction} (${Math.round(
+                      staticConfidence * 100
+                    )}%)`
+                  : "menunggu..."}
+              </div>
+              <div className="text-xs">
+                dynamic:{" "}
+                {currentPrediction
+                  ? `${currentPrediction} (${Math.round(
+                      predictionConfidence * 100
+                    )}%)`
+                  : "menunggu buffer..."}
+              </div>
+              {isProcessing && (
+                <div className="text-xs text-yellow-300">
+                  <Loader2 size={12} className="inline animate-spin mr-1" />
+                  memproses...
+                </div>
+              )}
             </div>
-          </div>
-        )}
-
-        {/* Static Prediction Display (Letters) */}
-        {staticPrediction && isActive && (
-          <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 p-4 rounded-md max-w-md w-full text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Type size={16} />
-              <span className="text-xs">HURUF</span>
-            </div>
-            <div className="text-lg font-semibold mb-2">{staticPrediction}</div>
-            <div className="text-sm text-yellow-300 mb-3">
-              Confidence: {Math.round(staticConfidence * 100)}%
-            </div>
-            <button
-              onClick={handleUseStaticPrediction}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm transition-colors"
-            >
-              Gunakan Huruf
-            </button>
-          </div>
-        )}
-
-        {/* Dynamic Prediction Display (Words/Sentences) */}
-        {currentPrediction && isActive && (
-          <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-md max-w-md w-full text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <FileText size={16} />
-              <span className="text-xs">KATA/KALIMAT</span>
-            </div>
-            <div className="text-lg font-semibold mb-2">
-              {currentPrediction}
-            </div>
-            <div className="text-sm text-green-300 mb-3">
-              Confidence: {Math.round(predictionConfidence * 100)}%
-            </div>
-            <button
-              onClick={handleUseDynamicPrediction}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm transition-colors"
-            >
-              Gunakan Kata
-            </button>
           </div>
         )}
 
@@ -228,7 +206,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
             <div className="relative w-full max-w-md aspect-video bg-black rounded-lg overflow-hidden border border-gray-700">
               <Webcam
                 ref={webcamRef}
-                audio={false} // No audio needed for real-time detection
+                audio={false}
                 screenshotFormat="image/jpeg"
                 videoConstraints={videoConstraints}
                 className="w-full h-full object-cover"
@@ -254,11 +232,11 @@ const CameraInput: React.FC<CameraInputProps> = ({
                 </div>
               )}
 
-              {/* Current predictions overlay */}
+              {/* Current predictions overlay
               <div className="absolute bottom-2 left-2 right-2 space-y-1">
                 {staticPrediction && (
                   <div className="bg-yellow-600/80 text-white px-2 py-1 rounded text-center text-xs">
-                    Huruf: {staticPrediction} (
+                    huruf: {staticPrediction} (
                     {Math.round(staticConfidence * 100)}%)
                   </div>
                 )}
@@ -268,7 +246,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
                     {Math.round(predictionConfidence * 100)}%)
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
 
             {/* Camera Controls */}
@@ -288,8 +266,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
                 posisikan tangan anda di depan kamera untuk deteksi real-time
               </p>
               <p className="text-xs text-gray-500">
-                sistem akan mendeteksi huruf (1 detik) dan kata (3 detik) secara
-                otomatis
+                sistem akan otomatis mengirim hasil ke output
               </p>
             </div>
           </div>

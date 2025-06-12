@@ -54,8 +54,8 @@ const postPredictDynamic = async (
 ) => {
   try {
     const response = await axiosInstance.post("/api/predict-dynamic-sign", {
-      landmark_sequence: landmarkSequence,
-      model_choice: modelChoice,
+      landmarkSequence: landmarkSequence,
+      modelChoice: modelChoice,
     });
 
     return response.data;

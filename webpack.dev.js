@@ -12,6 +12,8 @@ module.exports = merge(config, {
     static: {
       directory: path.join(__dirname, "dist"),
     },
+    host: "0.0.0.0",
+    allowedHosts: "all",
     compress: true,
     historyApiFallback: true,
     port: 3000,

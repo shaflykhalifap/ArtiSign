@@ -39,7 +39,7 @@ const TranslatePage = () => {
   // Error State
   if (lettersError || wordsError) {
     return (
-      <div className="max-w-4xl mx-auto w-full p-8 text-red-500">
+      <div className="max-w-4xl mx-auto w-full p-4 sm:p-8 text-red-500">
         <h2>Error loading data</h2>
         <p>{lettersError || wordsError}</p>
       </div>
@@ -48,23 +48,23 @@ const TranslatePage = () => {
 
   return (
     <>
-      <div className="flex-1 bg-[#1a1a1a] text-white p-8 flex flex-col">
-        <div className="max-w-4xl mx-auto w-full">
+      <div className="flex-1 bg-[#1a1a1a] text-white px-4 py-6 sm:px-6 sm:py-8 lg:p-8 flex flex-col">
+        <div className="w-full max-w-sm sm:max-w-2xl lg:max-w-4xl mx-auto">
           <TranslateTabSelector
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
         </div>
 
-        <div className="max-w-4xl mx-auto w-full mt-6 flex-1 flex flex-col">
+        <div className="w-full max-w-sm sm:max-w-2xl lg:max-w-4xl mx-auto mt-4 sm:mt-6 flex-1 flex flex-col">
           <TranslateContainer
             inputText={inputText}
             maxChars={maxChars}
             handleTextChange={handleTextChange}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            availableLetters={letters || []} // Gunakan data dari useFetch
-            availableWords={words || []} // Gunakan data dari useFetch
+            availableLetters={letters || []}
+            availableWords={words || []}
           />
         </div>
       </div>

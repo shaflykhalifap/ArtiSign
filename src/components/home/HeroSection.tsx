@@ -8,7 +8,7 @@ const HeroSection: React.FC = () => {
     <section className="px-6 py-24 md:py-32 bg-[#1a1a1a] text-white text-center">
       <Container>
         <div className="mt-12 md:mt-16">
-          <h1 className="text-3xl md:text-4xl font-bold leading-snug mb-10">
+          <h1 className="text-2xl md:text-4xl font-bold leading-snug mb-10">
             platform penerjemah <br />
             bahasa indonesia ke bahasa isyarat
           </h1>

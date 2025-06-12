@@ -76,6 +76,7 @@ module.exports = {
       patterns: [
         { from: "public/assets", to: "assets" },
         { from: "src/assets", to: "assets" },
+        { from: "public/_redirects", to: "_redirects" },
       ],
     }),
   ],

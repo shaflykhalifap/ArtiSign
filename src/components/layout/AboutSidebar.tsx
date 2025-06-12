@@ -12,8 +12,6 @@ const AboutSidebar = ({ activeTab, setActiveTab }: AboutSidebarProps) => {
   const navigate = useNavigate();
 
   const handleTabChange = (tab: AboutTab) => {
-    console.log("Tab clicked:", tab);
-
     try {
       setActiveTab(tab);
 
@@ -22,14 +20,10 @@ const AboutSidebar = ({ activeTab, setActiveTab }: AboutSidebarProps) => {
       } else {
         navigate(`/about/${tab}`);
       }
-
-      console.log("Navigation successful to:", `/about/${tab}`);
     } catch (error) {
       console.error("Error in handleTabChange:", error);
     }
   };
-
-  console.log("Current activeTab:", activeTab);
 
   return (
     <aside className="hidden lg:block w-96 bg-[#1a1a1a] p-8 flex flex-col border-r border-gray-800 fixed top-0 left-44 bottom-0 z-10">

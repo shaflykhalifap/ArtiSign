@@ -108,7 +108,6 @@ const CameraInput: React.FC<CameraInputProps> = ({
   };
 
   const handleWebcamUserMedia = (stream: MediaStream) => {
-    console.log("Camera started successfully:", stream);
     // Clear any previous errors when camera starts successfully
     if (error) {
       clearError();
@@ -286,10 +285,10 @@ const CameraInput: React.FC<CameraInputProps> = ({
             {/* Instructions */}
             <div className="text-center text-gray-400 text-sm max-w-md space-y-2">
               <p>
-                Posisikan tangan Anda di depan kamera untuk deteksi real-time
+                posisikan tangan anda di depan kamera untuk deteksi real-time
               </p>
               <p className="text-xs text-gray-500">
-                Sistem akan mendeteksi huruf (1 detik) dan kata (3 detik) secara
+                sistem akan mendeteksi huruf (1 detik) dan kata (3 detik) secara
                 otomatis
               </p>
             </div>
@@ -306,7 +305,7 @@ const CameraInput: React.FC<CameraInputProps> = ({
               <Video size={48} className="text-white" />
             </button>
             <p className="text-gray-400 text-center max-w-md">
-              Tekan tombol untuk mengaktifkan kamera dan mulai deteksi real-time
+              tekan tombol untuk mengaktifkan kamera dan mulai deteksi real-time
               bahasa isyarat
             </p>
           </div>
@@ -318,7 +317,6 @@ const CameraInput: React.FC<CameraInputProps> = ({
         <PermissionPrompt
           requiredPermission="camera"
           onClose={() => {
-            console.log("Permission prompt closed");
             setShowPermissionPrompt(false);
           }}
           switchToTextTab={() => {

@@ -41,7 +41,7 @@ const PermissionPrompt: React.FC<PermissionPromptProps> = ({
           setIsPermissionBlocked(true);
         }
       } catch (err) {
-        console.log("Permission API not supported");
+        throw err;
       }
     };
 
@@ -63,7 +63,6 @@ const PermissionPrompt: React.FC<PermissionPromptProps> = ({
 
       // Jika permission di-block/ditolak, redirect ke text tab
       if (error instanceof DOMException && error.name === "NotAllowedError") {
-        console.log("Permission blocked, redirecting to text tab");
         if (typeof switchToTextTab === "function") {
           switchToTextTab();
         }
@@ -76,11 +75,8 @@ const PermissionPrompt: React.FC<PermissionPromptProps> = ({
 
   // Fungsi redirect ke TranslateInput saat tombol tutup diklik
   const handleClose = () => {
-    console.log("handleClose dipanggil");
-
     // Hanya gunakan switchToTextTab jika tersedia
     if (typeof switchToTextTab === "function") {
-      console.log("Memanggil switchToTextTab");
       switchToTextTab();
     }
     onClose();

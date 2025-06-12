@@ -83,7 +83,6 @@ export const useWebcam = (): UseWebcamReturn => {
         }
       };
     } catch (err) {
-      console.log("Permission API not supported, will check on camera access");
       setHasPermission(null);
     }
   }, []);
@@ -110,7 +109,6 @@ export const useWebcam = (): UseWebcamReturn => {
   }, []);
 
   const resetPermissionState = useCallback(() => {
-    console.log("Resetting permission state for camera tab");
     if (hasPermission === false) {
       setShowPermissionPrompt(true);
     }
@@ -160,19 +158,11 @@ export const useWebcam = (): UseWebcamReturn => {
         // Use the first hand for static prediction
         const singleLandmark = extractSingleLandmark(result.landmarks[0]);
 
-        console.log("Making static prediction with landmark data");
-
         const response = await postPredictStatic(singleLandmark);
 
         if (response.success && response.result) {
           setStaticPrediction(response.result.class);
           setStaticConfidence(response.result.confidence);
-          console.log(
-            "Static Prediction:",
-            response.result.class,
-            "Confidence:",
-            response.result.confidence
-          );
         }
       }
     } catch (error) {
@@ -184,11 +174,6 @@ export const useWebcam = (): UseWebcamReturn => {
     if (landmarkBufferRef.current.length >= 5) {
       try {
         setIsProcessing(true);
-        console.log(
-          "Making dynamic prediction with",
-          landmarkBufferRef.current.length,
-          "frames"
-        );
 
         const response = await postPredictDynamic(
           landmarkBufferRef.current,
@@ -198,12 +183,6 @@ export const useWebcam = (): UseWebcamReturn => {
         if (response.success && response.result) {
           setCurrentPrediction(response.result.class);
           setPredictionConfidence(response.result.confidence);
-          console.log(
-            "Dynamic Prediction:",
-            response.result.class,
-            "Confidence:",
-            response.result.confidence
-          );
         }
       } catch (error) {
         console.error("Dynamic prediction error:", error);
@@ -214,7 +193,6 @@ export const useWebcam = (): UseWebcamReturn => {
   }, []);
 
   const startRealTimeDetection = useCallback(async () => {
-    console.log("Starting real-time detection...");
     setIsDetecting(true);
     landmarkBufferRef.current = [];
     setLandmarkSequence([]);
@@ -236,8 +214,6 @@ export const useWebcam = (): UseWebcamReturn => {
   }, [performDetection, performStaticPrediction, performDynamicPrediction]);
 
   const stopRealTimeDetection = useCallback(() => {
-    console.log("Stopping real-time detection...");
-
     if (detectionIntervalRef.current) {
       clearInterval(detectionIntervalRef.current);
       detectionIntervalRef.current = null;
@@ -264,7 +240,6 @@ export const useWebcam = (): UseWebcamReturn => {
   }, []);
 
   const startCamera = useCallback(async () => {
-    console.log("Starting camera...");
     setError(null);
 
     if (hasPermission === false) {
@@ -307,7 +282,6 @@ export const useWebcam = (): UseWebcamReturn => {
   ]);
 
   const stopCamera = useCallback(() => {
-    console.log("Stopping camera...");
     setIsActive(false);
     stopRealTimeDetection();
   }, [stopRealTimeDetection]);

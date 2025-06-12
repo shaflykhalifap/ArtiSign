@@ -27,7 +27,7 @@ const FeatureCard = ({ title, description, image, alt }: FeatureCardProps) => {
         </div>
 
         {/* Title with modern typography */}
-        <h3 className="text-xl font-bold font-mono mb-3 text-white/90 group-hover:text-blue-300 transition-colors duration-300 capitalize">
+        <h3 className="text-xl font-bold font-mono mb-3 text-white/90 group-hover:text-blue-300 transition-colors duration-300 lowercase">
           {title}
         </h3>
 

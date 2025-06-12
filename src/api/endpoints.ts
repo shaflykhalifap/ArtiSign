@@ -7,10 +7,8 @@ const getHealthCheck = async () => {
   try {
     const response = await axiosInstance.get("/api/health");
 
-    console.log("Health check response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching health check:", error);
     throw error;
   }
 };
@@ -19,10 +17,8 @@ const getLetters = async () => {
   try {
     const response = await axiosInstance.get("/api/available-letters");
 
-    console.log("Fetched letters:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching letters:", error);
     throw error;
   }
 };
@@ -31,7 +27,6 @@ const getWords = async () => {
   try {
     const response = await axiosInstance.get("/api/available-words");
 
-    console.log("Fetched words:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching words:", error);
@@ -46,7 +41,6 @@ const postPredictStatic = async (landmarks: number[]) => {
       landmarks: landmarks,
     });
 
-    console.log("Prediction response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error posting prediction:", error);
@@ -64,7 +58,6 @@ const postPredictDynamic = async (
       model_choice: modelChoice,
     });
 
-    console.log("Dynamic prediction response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error posting dynamic prediction:", error);
@@ -78,7 +71,6 @@ const postTextToSign = async (text: string) => {
       text: text,
     });
 
-    console.log("Text to sign response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error posting text to sign:", error);
@@ -90,7 +82,6 @@ const postUpload = async () => {
   try {
     const response = await axiosInstance.post("/api/upload");
 
-    console.log("File upload response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error uploading file:", error);

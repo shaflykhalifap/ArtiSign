@@ -19,8 +19,6 @@ export const useHandDetector = () => {
     if (isInitializedRef.current) return;
 
     try {
-      console.log("Initializing TensorFlow.js Hand Pose detector...");
-
       // Import TensorFlow.js modules
       const tf = await import("@tensorflow/tfjs");
       const handPoseDetection = await import(
@@ -46,12 +44,10 @@ export const useHandDetector = () => {
 
       detectorRef.current = detector;
       isInitializedRef.current = true;
-      console.log("TensorFlow.js Hand Pose detector initialized successfully");
     } catch (error) {
       console.error("Failed to initialize hand detector:", error);
 
       // Fallback: try to continue without throwing error to prevent app crash
-      console.log("Continuing without hand detection...");
       isInitializedRef.current = false;
     }
   }, []);
@@ -71,8 +67,6 @@ export const useHandDetector = () => {
         const hands = await detectorRef.current.estimateHands(videoElement);
 
         if (hands && hands.length > 0) {
-          console.log(`Detected ${hands.length} hands`);
-
           const landmarks = hands.map((hand: any) => {
             return hand.keypoints.map((keypoint: any) => ({
               x: keypoint.x / videoElement.videoWidth, // Normalize to 0-1

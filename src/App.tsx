@@ -4,7 +4,7 @@ import { Routes, Route } from "react-router-dom";
 // --- Import Components ---
 import HomePage from "./pages/HomePage";
 import TranslatePage from "./pages/TranslatePage";
-import ChatbotPage from "./pages/ChatbotPage";
+// import ChatbotPage from "./pages/ChatbotPage";
 import ArticlePage from "./pages/ArticlePage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import AboutPage from "./pages/AboutPage";
@@ -35,7 +35,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/translate" element={<TranslatePage />} />
-          <Route path="/chatbot" element={<ChatbotPage />} />
+          {/* <Route path="/chatbot" element={<ChatbotPage />} /> */}
           <Route path="/article" element={<ArticlePage />} />
           <Route path="/article/:id" element={<ArticleDetailPage />} />
           <Route path="/about" element={<AboutPage />} />

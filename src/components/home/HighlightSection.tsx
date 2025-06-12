@@ -10,19 +10,19 @@ const HighlightSection = () => {
           </h2>
 
           <p className="text-gray-300">
-            Platform ini 100% gratis digunakan oleh siapa pun — tanpa biaya
+            platform ini 100% gratis digunakan oleh siapa pun — tanpa biaya
             langganan, tanpa batasan.
           </p>
 
           <p className="text-gray-300">
-            Belajar Bahasa Isyarat menjadi lebih menyenangkan! Dengan tampilan
+            belajar Bahasa Isyarat menjadi lebih menyenangkan! dengan tampilan
             yang ramah pengguna, animasi gerakan yang dinamis, dan fitur
             interaktif, kamu bisa belajar sambil bermain — cocok untuk semua
             kalangan.
           </p>
 
           <p className="text-gray-300">
-            Terjemahan yang akurat dengan didukung oleh AI yang terus belajar
+            terjemahan yang akurat dengan didukung oleh AI yang terus belajar
             dari data, memahami konteks kalimat, dan menyesuaikan dengan kaidah
             Bahasa Isyarat Indonesia (BISINDO), sehingga hasil terjemahan mudah
             dipahami.

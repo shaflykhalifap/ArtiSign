@@ -47,7 +47,6 @@ const AudioInput: React.FC<AudioInputProps> = ({
         }, 100);
       }
     } catch (error) {
-      console.log("🎤 Audio permission denied, switching to text tab");
       if (setActiveTab) {
         setActiveTab("text");
       }
@@ -163,11 +162,11 @@ const AudioInput: React.FC<AudioInputProps> = ({
             </button>
             <div className="text-center space-y-2">
               <p className="text-gray-400">
-                Tekan tombol mikrofon untuk mulai mendengarkan
+                tekan tombol mikrofon untuk mulai mendengarkan
               </p>
               <p className="text-sm text-gray-500 max-w-sm">
-                Pengenalan suara bekerja dalam bahasa Indonesia. Pastikan
-                mikrofon Anda berfungsi dengan baik.
+                pengenalan suara bekerja dalam bahasa indonesia. pastikan
+                mikrofon anda berfungsi dengan baik.
               </p>
             </div>
 
@@ -175,10 +174,10 @@ const AudioInput: React.FC<AudioInputProps> = ({
             <div className="bg-gray-800/50 rounded-lg p-3 max-w-sm">
               <div className="flex items-center space-x-2 mb-2">
                 <Volume2 size={16} className="text-blue-400" />
-                <span className="text-sm text-gray-300">Browser Support</span>
+                <span className="text-sm text-gray-300">browser support</span>
               </div>
               <p className="text-xs text-gray-500">
-                Fitur ini bekerja optimal di Chrome, Edge, dan Safari terbaru
+                fitur ini bekerja optimal di chrome, edge, dan safari terbaru
                 dengan koneksi internet aktif.
               </p>
             </div>

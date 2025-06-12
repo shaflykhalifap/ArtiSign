@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Bot, BookOpen, Info, Languages } from "lucide-react";
+import { Home, BookOpen, Info, Languages } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const ButtonSidebar = () => {
@@ -10,7 +10,7 @@ const ButtonSidebar = () => {
       icon: <Languages size={28} />,
       path: "/translate",
     },
-    { name: "chatbot", icon: <Bot size={28} />, path: "/chatbot" },
+    // { name: "chatbot", icon: <Bot size={28} />, path: "/chatbot" },
   ];
 
   const bottomMenuItems = [

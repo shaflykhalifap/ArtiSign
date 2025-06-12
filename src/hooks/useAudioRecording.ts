@@ -127,7 +127,6 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
       let finalTranscript = "";
 
       recognition.onstart = () => {
-        console.log("🎤 Speech recognition started");
         setIsListening(true);
         setError(null);
         setTranscript("");
@@ -183,7 +182,6 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
       };
 
       recognition.onend = () => {
-        console.log("🎤 Speech recognition ended");
         setIsListening(false);
       };
 

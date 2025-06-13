@@ -103,7 +103,7 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 4. Akses frontend:
-pastikan terminal di path direktori root dengan cara `cd..`
+pastikan terminal di path direktori root dengan cara cd..
 npm install
 npm run build
 npm run start

@@ -44,15 +44,16 @@ Untuk menjalankan proyek, buka dan jalankan sel-sel kode di dalam notebook Jupyt
     ```bash
     jupyter lab
     ```
-2.  Dari antarmuka Jupyter Lab, buka file `Artisign_notebook(7).ipynb`.
+2.  Dari antarmuka Jupyter Lab, buka file `Artisign_notebook.ipynb`.
 3.  Jalankan sel-sel kode sesuai urutan untuk melatih model, melakukan inferensi, atau mencoba fitur lainnya.
 
 ## 📁 Struktur Repositori
-
+```bash
 ├── Artisign_notebook.ipynb   # Notebook utama untuk eksperimen dan pengembangan.
-├── models/                      # Folder untuk menyimpan file model yang telah dilatih (.h5, .tflite, etc.).
+├── models/                      # Folder untuk menyimpan file model yang telah dilatih.
 ├── README.md                    # File yang sedang Anda baca.
 └── requirements.txt             # Daftar dependensi Python.
+```
 
 ## 👥 Kontribusi
 

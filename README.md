@@ -68,8 +68,8 @@ ArtiSign hadir sebagai platform web interaktif dengan fitur:
 ### Machine Learning (Python)
 - `TensorFlow / Keras`, `MediaPipe Hands`, `OpenCV`, `Numpy`, `tensorflowjs_converter`
 
-### Backend (Node.js)
-- `Express.js`, `@tensorflow/tfjs-node`, `ws`, `multer`, `jimp`, `uuid`, `child_process`, `body-parser`
+### Backend (Python)
+- `fastApi`, `tensorflow`, `uvicorn` `ws`, `mediapipe`, `Pillow`, `aiofiles`, `python-jose`, `python-multipart`, `opencv-python`, `numpy`
 
 ### Frontend (Web)
 - `HTML5`, `CSS3`, `JavaScript`
@@ -79,7 +79,7 @@ ArtiSign hadir sebagai platform web interaktif dengan fitur:
 
 ### Prasyarat
 - **Node.js & npm** (https://nodejs.org)
-- **Python 3.8+** (https://python.org)
+- **Python 3.9 - 3.10** (https://python.org)
 - **FFMPEG** (https://ffmpeg.org/download.html)
 - **Webcam**
 
@@ -91,14 +91,16 @@ cd ArtiSign_Project
 
 # 2. Tempatkan model terlatih di:
 #    ArtiSign_Project/backend/models/
-#    - tfjs_models/
+#    - best_bisindo_image_model.h5
+#    - best_bisindo_landmark_model.h5
+#    - best_bisindo_video_lstm_model.h5
 #    - image_class_mapping.json
+#    - video_class_mapping.json
 
 3. Jalankan backend:
 cd backend
-npm init -y
-npm install express @tensorflow/tfjs-node ws body-parser multer jimp child_process uuid
-node app.js
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 4. Akses frontend:
 Buka http://localhost:3000 di browser Anda.

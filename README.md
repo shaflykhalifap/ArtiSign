@@ -73,7 +73,7 @@ ArtiSign hadir sebagai platform web interaktif dengan fitur:
 
 ### Frontend (Web)
 - `HTML5`, `CSS3`, `JavaScript`
-- `MediaPipe.js`, `Web Speech API`, `WebSocket`, `fetch API`
+- `MediaPipe.js`, `Web Speech API`, `WebSocket`, `fetch API`. ` Reactjs`
 
 ## Memulai (Pengaturan Lokal)
 
@@ -103,6 +103,10 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 4. Akses frontend:
+pastikan terminal di path direktori root dengan cara `cd..`
+npm install
+npm run build
+npm run start
 Buka http://localhost:3000 di browser Anda.
 
 ## Memulai (Pengaturan Lokal)

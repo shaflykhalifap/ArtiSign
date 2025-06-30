@@ -7,7 +7,7 @@
 - [Fitur Utama](#fitur-utama)
 - [Peningkatan dan Rencana Jangka Depan](#peningkatan-dan-rencana-jangka-depan)
 - [Mengapa Platform Web?](#mengapa-platform-web)
-- [Tumpukan Teknologi (Tech Stack)](#tumpukan-teknologi-tech-stack)
+- [Tech Stack](#tumpukan-teknologi-tech-stack)
 - [Struktur Proyek](#struktur-proyek)
 - [Memulai (Pengaturan Lokal)](#memulai-pengaturan-lokal)
 - [Penggunaan](#penggunaan)
@@ -72,10 +72,10 @@ ArtiSign hadir sebagai platform web interaktif dengan fitur:
 - `fastApi`, `tensorflow`, `uvicorn` `ws`, `mediapipe`, `Pillow`, `aiofiles`, `python-jose`, `python-multipart`, `opencv-python`, `numpy`
 
 ### Frontend (Web)
-- `HTML5`, `CSS3`, `JavaScript`
-- `MediaPipe.js`, `Web Speech API`, `WebSocket`, `fetch API`. ` Reactjs`
+- `HTML5`, `CSS3`, `JavaScript`, `TypeScript`
+- `Webpack`, `Tailwind`, `MediaPipe.js`, `WebSpeech API`, `WebSocket`, `Axios`. ` Reactjs`, ` Threejs`
 
-## Memulai (Pengaturan Lokal)
+## Memulai di Lokal ataupun mulai langsung di website-nya)
 
 ### Prasyarat
 - **Node.js & npm** (https://nodejs.org)
@@ -83,7 +83,7 @@ ArtiSign hadir sebagai platform web interaktif dengan fitur:
 - **FFMPEG** (https://ffmpeg.org/download.html)
 - **Webcam**
 
-### Instalasi
+### Instalasi Local
 1. Kloning repositori:
 ```bash
 git clone https://github.com/shaflykhalifap/ArtiSign.git
@@ -97,38 +97,57 @@ cd ArtiSign_Project
 #    - image_class_mapping.json
 #    - video_class_mapping.json
 
-3. Jalankan backend:
+#3. Jalankan backend:
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-4. Akses frontend:
-pastikan terminal di path direktori root dengan cara cd..
+# 4. Akses frontend:
+# pastikan terminal di path direktori root dengan cara cd..
 npm install
 npm run build
 npm run start
-Buka http://localhost:3000 di browser Anda.
+# Buka http://localhost:3000 di browser Anda.
+```
 
-## Memulai (Pengaturan Lokal)
+### Akses Deployment
 
-1. Deteksi BISINDO Real-time
-Kunjungi http://localhost:3000
+Aplikasi ArtiSign ini juga sudah dideploy di Netlify, kalian bisa akses melalui link dibawah ini:
+[https://artisign.netlify.app](https://artisign.netlify.app)
 
-Izinkan akses kamera
 
-Lakukan gerakan BISINDO → hasil akan tampil & dibacakan
+### Cara Pemakaian
 
-2. Pembelajaran BISINDO (awal)
-Telusuri konten interaktif di halaman utama
+1. Pergi ke browser dan akses [https://artisign.netlify.app](https://artisign.netlify.app) ataupun jika kalian di akses di local [http://localhost:3000](http://localhost:3000)
+   
+2. Kalian bisa eksplorasi di website tersebut, terdapat halaman beranda, halaman translate, halaman artikel, dan halaman tentang kami.
+   
+3. Akses halaman translate, disana terdapat input dan output.
+   
+4. Ada 3 fitur di halaman translate, yaitu
+   - Text Bahasa Indonesia  -> 3D Bahasa Isyarat
+   - Suara Bahasa Indonesia -> 3D Bahasa Isyarat
+   - Kamera Bahasa Isyarat  -> Text Bahasa Indonesia
 
-3. Deteksi Gambar/Video (fitur masa depan)
-Navigasi ke /upload-image.html atau /upload-video.html (setelah implementasi)
+5. Akses fitur Text Bahasa Indonesia -> 3D Bahasa Isyarat
 
-4. Layanan Interpreter Manusia (rencana)
-Akan tersedia setelah fitur diluncurkan
+   Kalian masukkan input text bahasa indonesia, contohnya "Halo", nanti outputnya berupa gerakan 3D.
+
+6. Akses fitur Suara Bahasa Indonesia -> 3D Bahasa Isyarat
+
+   Untuk fitur suara to 3d ini, hanya beberapa browser saja yang support, seperti Chrome, Safari, Mozila, dll.
+   Setelah itu izinkan akses suara di browser Anda dan tekan tombol suara untuk mulai berkomunikasi.
+
+7. Akses fitur Kamera Bahasa Isyarat -> Text Bahasa Indonesia
+
+   Untuk fitur ini, membutuhkan izin akses kamera di browser Anda dan tekan tombol kamer. Tunggu beberapa detik untuk sistem mendeteksinya.
+
+## Saran dan Kritik
+Jika Anda ada saran, feedback ataupun menemui masalah, silahkan:
+- Buat [issue baru di Github](https://github.com/shaflykhalifap/ArtiSign/issues)
+- Ataupun menghubungi kami di email shaflykp305@gmail.com
 
 ## Kontak
 Untuk pertanyaan, kontribusi, atau kolaborasi:
 
-[ArtiSign Project Capstone Team]
-📧 [shaflykp305@gmail.com]
+📧 shaflykp305@gmail.com

@@ -24,3 +24,21 @@ venv
 *.njsproj
 *.sln
 *.sw?
+
+# Build directories
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.development
+.env.test
+.env.production
+.env.example
+coverage
+build
+public
+.next
+out
+.cache
+.cache-loader
